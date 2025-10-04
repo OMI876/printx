@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PRINTX - Return & Exchange</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8fafb;
+            color: #222;
+        }
+        .container {
+            width: 95%;
+            max-width: 700px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            padding: 32px 18px;
+        }
+        h1, h2 {
+            color: #26547c;
+        }
+        section {
+            margin-bottom: 30px;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+        input, select, textarea {
+            width: 90%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #d1e2ee;
+            background: #f5f7fa;
+            margin-bottom: 20px;
+            transition: border 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #90caf9;
+            outline: none;
+        }
+        button {
+            background: #61c0bf;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #26547c;
+        }
+        .policy-list {
+            padding-left: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .preview {
+            max-width: 200px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            display: none;
+        }
+        .tip {
+            font-size: 0.97em;
+            color: #738094;
+            margin-bottom: 8px;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 16px 2vw; }
+            h1, h2 { font-size: 1.2em; }
+        }
+    </style>
+    <script>
+        // ✅ Auto-fill order ID from URL
+        window.onload = function () {
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get("order");
+            if (orderId) {
+                document.getElementById("orderId").value = orderId;
+                document.getElementById("orderId").readOnly = true;
+            }
+        };
+
+        function handleTypeChange(event) {
+            var upiFields = document.getElementById('upi-fields');
+            if (event.value === "return") {
+                upiFields.classList.remove('hidden');
+            } else {
+                upiFields.classList.add('hidden');
+                document.getElementById('upi').value = "";
+                document.getElementById('image').value = null;
+                document.getElementById('imgPreview').style.display = "none";
+            }
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imgPreview');
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = "block";
+            } else {
+                preview.style.display = "none";
+            }
+        }
+
+        // ✅ AJAX form submit
+        async function submitReturnForm(event) {
+            event.preventDefault();
+
+            const form = document.getElementById("returnForm");
+            const formData = new FormData(form);
+
+            const response = await fetch("/submit-return-exchange", {
+                method: "POST",
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("✅ Thank you! We have received your request. You will receive updates on your email within 2–3 working days.");
+                window.location.href = "/";
+            } else {
+                alert("❌ Something went wrong. Please try again later.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+
+        <h1>Return & Exchange Center</h1>
+        <section>
+            <p>
+                Welcome to the PRINTX Return & Exchange Center.<br />
+                We value your trust and aim to make the process easy for products like Stickers, Photoframes, and T-Shirts.
+            </p>
+        </section>
+
+        <section>
+            <h2>Return Policy</h2>
+            <ul class="policy-list">
+                <li>Returns accepted within <strong>7 days</strong> of delivery.</li>
+                <li>Product must be unused and in its original packaging.</li>
+                <li>Customised items (with personal photos or text) are <strong>non-returnable</strong> unless defective.</li>
+                <li>Refunds will be processed via UPI within 5–7 working days after inspection.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Exchange Policy</h2>
+            <ul class="policy-list">
+                <li>Exchanges allowed within <strong>7 days</strong> of delivery.</li>
+                <li>Only size/color issues for T-Shirts can be exchanged.</li>
+                <li>Stickers and Photoframes can only be exchanged if they are defective or misprinted.</li>
+                <li>Customer pays return shipping for exchanges unless the item is defective or wrong.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Start Return or Exchange</h2>
+            <form id="returnForm" onsubmit="submitReturnForm(event)" enctype="multipart/form-data">
+                <label for="orderId">Order Number</label>
+                <input type="text" id="orderId" name="orderId" required>
+
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="reason">Reason</label>
+                <select id="reason" name="reason" required>
+                    <option value="">Select reason</option>
+                    <option value="defective">Defective print / misprint</option>
+                    <option value="damaged">Damaged product</option>
+                    <option value="wrong_item">Wrong product delivered</option>
+                    <option value="size_issue">T-Shirt size/fit issue</option>
+                    <option value="color_issue">T-Shirt color mismatch</option>
+                    <option value="photoframe_damage">Photoframe glass/frame damaged</option>
+                    <option value="sticker_issue">Sticker peeling/quality issue</option>
+                    <option value="other">Other</option>
+                </select>
+
+                <label for="type">Request Type</label>
+                <select id="type" name="type" onchange="handleTypeChange(this);" required>
+                    <option value="">Select request type</option>
+                    <option value="return">Return</option>
+                    <option value="exchange">Exchange</option>
+                </select>
+
+                <div id="upi-fields" class="hidden">
+                    <label for="upi">Enter UPI ID for refund <span class="tip">(required for returns only)</span></label>
+                    <input type="text" id="upi" name="upi" placeholder="Enter your UPI ID">
+
+                    <label for="image">Upload Image (optional, max 5MB)</label>
+                    <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+                    <img id="imgPreview" class="preview" alt="Preview">
+                </div>
+
+                <label for="details">Details (optional)</label>
+                <textarea id="details" name="details" rows="3" placeholder="Additional information"></textarea>
+
+                <button type="submit">Submit Request</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Need Assistance?</h2>
+            <p>
+                For support, email <a href="mailto:support@printx.com">support@printx.com</a> or call +91-98XXX-XXXXX.
+            </p>
+        </section>
+    </div>
+</body>
+</html>

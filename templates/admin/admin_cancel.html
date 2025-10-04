@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cancelled Orders - PrintX</title>
+  <style>
+    body{margin:0;font-family:Segoe UI, Roboto, sans-serif;background:#f6f7fb;color:#2f3a4a}
+    .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    .sidebar{background:#fff;border-right:1px solid #e3e9f2;position:sticky;top:0;height:100vh;
+             display:flex;flex-direction:column;padding:18px 14px;gap:18px}
+    .brand{font-weight:bold;font-size:20px;text-align:center}
+    .nav{display:flex;flex-direction:column;gap:6px}
+    .nav a{padding:10px 14px;text-decoration:none;color:#2f3a4a;border-radius:8px;transition:.2s}
+    .nav a:hover{background:#f1f4f9}
+    .nav .active{background:#e3e9f2}
+    .spacer{flex:1}
+    .logout{color:#d77a7a;font-weight:bold}
+    .main{padding:22px}
+    table{width:100%;border-collapse:collapse;margin-top:20px;background:#fff;border-radius:8px;overflow:hidden}
+    th,td{padding:10px 14px;border-bottom:1px solid #e3e9f2;text-align:left}
+    th{background:#f1f4f9;color:#6c7a89;font-size:12px;text-transform:uppercase}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">PrintX Admin</div>
+      <nav class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/users">Users</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/returns">Returns/Exchange</a>
+        <a href="/admin/cancelled" class="active">Cancelled Orders</a>
+        <a href="/admin/messages">Messages</a>
+      </nav>
+      <div class="spacer"></div>
+      <nav class="nav">
+        <a href="/logout" class="logout">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+      <h1>Cancelled Orders</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Order ID</th>
+            <th>Customer Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td>{{ row.id }}</td>
+            <td>{{ row.order_id }}</td>
+            <td>{{ row.customer_name }}</td>
+            <td>{{ row.phone }}</td>
+            <td>{{ row.email }}</td>
+            <td>{{ row.created_at }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6">No cancelled orders found</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </main>
+  </div>
+</body>
+</html>

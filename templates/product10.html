@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Custom Name Sticker</title>
+  <style>
+    body{margin:0;background:#f9fafb;font-family:Inter, sans-serif;color:#111;line-height:1.5}
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    .product{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+    @media(max-width:768px){.product{grid-template-columns:1fr}}
+    .image-box{background:#fff;padding:16px;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,0.05)}
+    .image-box img{width:100%;border-radius:12px;object-fit:cover}
+    .details h1{font-size:1.8rem;margin:0 0 12px}
+    .price{font-size:1.5rem;font-weight:700;color:#0f62fe;margin-bottom:14px}
+    .desc{color:#4b5563;font-size:1rem;margin-bottom:20px}
+    .options{margin-bottom:20px}
+    .options label{display:block;margin-bottom:6px;font-weight:600}
+    input[type="text"]{padding:8px 10px;border-radius:8px;border:1px solid #ddd;font-size:1rem;width:100%;max-width:220px}
+    .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+    .btn{padding:12px 18px;font-size:1rem;border-radius:10px;cursor:pointer;border:0;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+    .btn.primary{background:#0f62fe;color:#fff}
+    .btn.secondary{background:#fff;border:1px solid #ddd}
+    .extra{margin-top:32px}
+    .extra h2{font-size:1.3rem;margin-bottom:12px}
+    .extra p{color:#374151}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="product">
+      <div class="image-box">
+        <img src="{{ url_for('static', filename='images/s2.jpeg') }}" alt="Custom Name Sticker" />
+      </div>
+      <div class="details">
+        <h1>Custom Name Sticker</h1>
+        <div class="price">₹299</div>
+        <div class="desc">
+          Personalized vinyl stickers with your name in stylish fonts. Great for bottles, laptops, notebooks, or room decor.
+        </div>
+
+        <div class="options">
+          <label for="custom_name">Type Your Name:</label>
+          <input type="text" id="custom_name" placeholder="Enter your name" required>
+        </div>
+
+        <!-- ✅ Add to Cart Form -->
+        <form id="cartForm" class="btns">
+          <input type="hidden" name="product_id" value="10">
+          <input type="hidden" name="title" id="cart_title" value="Custom Name Sticker">
+          <input type="hidden" name="price" value="299">
+          <input type="hidden" name="size" value="One Size">
+
+          <button type="submit" class="btn primary">🛒 Add to Cart</button>
+          <button type="button" id="buyNowBtn" class="btn secondary">⚡ Buy Now</button>
+        </form>
+
+        <div class="extra">
+          <h2>Product Details</h2>
+          <ul>
+            <li>Premium vinyl sticker with glossy finish</li>
+            <li>Waterproof & fade-resistant for long-lasting use</li>
+            <li>Perfect for bottles, laptops, notebooks & gifts</li>
+            <li>Strong adhesive that does not peel easily</li>
+            <li>Size: One Size (customizable with your name)</li>
+            <li>Price: ₹299 (fixed)</li>
+            <li>Delivery within 2–3 working days</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ JS -->
+  <script>
+    const cartForm = document.getElementById("cartForm");
+    const customNameInput = document.getElementById("custom_name");
+    const cartTitle = document.getElementById("cart_title");
+    const buyNowBtn = document.getElementById("buyNowBtn");
+
+    // 📝 Validation function for name
+    function validateName() {
+      const name = customNameInput.value.trim();
+      if (name === "") {
+        alert("⚠️ Please enter your name before proceeding.");
+        customNameInput.focus();
+        return false;
+      }
+      cartTitle.value = `Custom Name Sticker (${name})`;
+      return true;
+    }
+
+    // ✅ Add to Cart
+    cartForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!validateName()) return;
+
+      const formData = new FormData(cartForm);
+      try {
+        const res = await fetch("/add_to_cart", { method: "POST", body: formData });
+        const data = await res.json();
+        alert(data.message);
+      } catch (err) {
+        alert("❌ Error adding to cart: " + err);
+      }
+    });
+
+    // ✅ Buy Now — Add to cart then open cart page in new tab
+    buyNowBtn.addEventListener("click", async () => {
+      if (!validateName()) return;
+
+      const formData = new FormData(cartForm);
+      try {
+        const res = await fetch("/add_to_cart", { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.success) {
+          window.open("/cart", "_blank");  // 🆕 opens cart page in new tab
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        alert("❌ Error: " + err);
+      }
+    });
+  </script>
+</body>
+</html>

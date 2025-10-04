@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Collection Page - T-Shirts, Hoodies & Sweatshirts</title>
+  <style>
+    :root {
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#0f62fe;
+      --shadow:0 6px 18px rgba(12,13,20,0.08);
+      --gap:18px;
+    }
+    * {
+      box-sizing: border-box;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: #111;
+      line-height: 1.35;
+      padding: 32px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    header { display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; margin-bottom:20px; }
+    h1 { font-size: 1.35rem; margin:0; }
+    .controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .search { display:flex; align-items:center; background:#fff; padding:8px 10px; border-radius:999px; box-shadow:var(--shadow); border:1px solid rgba(16,24,40,0.04); min-width:200px; }
+    .search input { border:0; outline:0; font-size:0.95rem; width:220px; }
+    select, .btn { padding:8px 12px; border-radius:10px; border:1px solid rgba(16,24,40,0.06); background:var(--card); cursor:pointer; }
+    .btn.primary { background:var(--accent); color:#fff; border:0; box-shadow:0 6px 18px rgba(15,98,254,0.12); }
+    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--gap); margin-top:18px; }
+    @media(max-width:1024px){ .grid{grid-template-columns:repeat(3,1fr)} .search input{width:140px} }
+    @media(max-width:720px){ .grid{grid-template-columns:repeat(2,1fr)} header{gap:10px} }
+    @media(max-width:420px){ .grid{grid-template-columns:1fr} .search input{width:100px} }
+    .card { background:var(--card); border-radius:16px; padding:14px; box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .card:hover { transform:translateY(-6px); box-shadow:0 10px 25px rgba(0,0,0,0.15); }
+    .thumb { width:100%; aspect-ratio:1/1; display:block; border-radius:12px; object-fit:cover; margin-bottom:12px; background:#eef2ff; }
+    .meta { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .title { font-weight:600; font-size:0.98rem; }
+    .price { font-weight:700; color:var(--accent); }
+    .desc { font-size:0.9rem; color:var(--muted); margin:8px 0 12px; }
+    .actions { margin-top:auto; display:flex; gap:8px; }
+    .chip { padding:6px 10px; border-radius:999px; background:#f3f4f6; font-size:0.82rem; color:var(--muted); border:1px solid rgba(16,24,40,0.03); }
+    .badge { position:absolute; left:14px; top:14px; background:#ffedd5; color:#92400e; padding:6px 10px; border-radius:999px; font-size:0.8rem; font-weight:600; }
+    .card-wrap { position:relative; cursor:pointer; }
+    .empty { padding:60px; text-align:center; color:var(--muted); background:linear-gradient(180deg,transparent,rgba(15,98,254,0.02)); border-radius:12px; }
+    footer { margin-top:28px; text-align:center; color:var(--muted); font-size:0.9rem; }
+
+    /* Modal styles */
+    #productModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; }
+    #productModal .modal-inner { position:relative; margin:5% auto; width:60%; height:70%; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.3); }
+    #productModal button.closeModal { position:absolute; top:10px; right:10px; padding:8px 12px; border:none; background:#f00; color:#fff; border-radius:8px; cursor:pointer; z-index:10; }
+    #productModal iframe { width:100%; height:100%; border:none; }
+    @media(max-width:768px){ #productModal .modal-inner{width:90%; height:80%;} }
+
+    /* Back button styling */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      z-index: 1000;
+      text-decoration: none;
+      box-shadow: var(--shadow);
+      display: inline-block;
+    }
+
+    /* Cart icon */
+    .cart-icon {
+      font-size: 2rem;
+      text-decoration: none;
+      color: var(--accent);
+      cursor: pointer;
+    }
+    .cart-icon:hover { color:#ff9800; }
+  </style>
+</head>
+<body>
+
+  <!-- Back Button -->
+  <a href="{{ url_for('home') }}" class="back-btn">&lt; BACK</a>
+
+  <div class="container">
+    <header>
+      <div>
+        <h1>T-Shirts, Hoodies & Sweatshirts</h1>
+        <div style="color:var(--muted);font-size:0.95rem;margin-top:6px">
+          Stylish streetwear & personalized outfits for every vibe ✨
+        </div>
+      </div>
+      <div class="controls">
+        <div class="search" role="search" aria-label="Search products">
+          <input id="q" type="search" placeholder="Product name, tag..." />
+        </div>
+
+        <select id="category" aria-label="Filter by category">
+          <option value="all">All categories</option>
+          <option value="Casual">Casual</option>
+          <option value="Printed">Printed</option>
+          <option value="Unique">Unique</option>
+        </select>
+
+        <select id="sort" aria-label="Sort products">
+          <option value="featured">Featured</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+        </select>
+
+        <!-- Reset button -->
+        <button class="btn primary" id="reset">Reset</button>
+        <!-- 🛒 Cart icon -->
+        <a href="{{ url_for('cart_backend.cart') }}" class="cart-icon">&#128722;</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <div id="grid" class="grid" aria-live="polite"></div>
+      <div id="empty" class="empty" style="display:none;margin-top:18px;border-radius:12px">
+        Koi product nahi mila. Search terms change karke dekhein.
+      </div>
+    </main>
+
+    <footer>© <span id="year"></span> PRINTX — Collection view</footer>
+  </div>
+
+  <!-- Modal with iframe -->
+  <div id="productModal">
+    <div class="modal-inner">
+      <button class="closeModal" onclick="closeModal()">Close</button>
+      <iframe id="modalIframe" src=""></iframe>
+    </div>
+  </div>
+
+  <script>
+    const products = [
+      {
+        id:5,
+        title:"Backside Wolf Printed Oversized T-shirt",
+        price:499,
+        category:"Casual",
+        desc:"Bold wolf print for fearless street style ",
+        img:"{{ url_for('static', filename='images/t1.jpeg') }}",
+        page:"{{ url_for('product_page', product_id=5) }}",
+        badge:"New"
+      },
+      {
+        id:6,
+        title:"Backside Spiderman Printed Oversized T-shirt",
+        price:699,
+        category:"Printed",
+        desc:"Futuristic Spidey graphic for Marvel fans ",
+        img:"{{ url_for('static', filename='images/t2.jpeg') }}",
+        page:"{{ url_for('product_page', product_id=6) }}"
+      },
+      {
+        id:7,
+        title:"Personalized Couple Hoodies",
+        price:799,
+        category:"Unique",
+        desc:"Matching hoodies with custom names ",
+        img:"{{ url_for('static', filename='images/t3.jpeg') }}",
+        page:"{{ url_for('product_page', product_id=7) }}"
+      },
+      {
+        id:8,
+        title:"Custom Best Friend Sweatshirt",
+        price:999,
+        category:"Printed",
+        desc:"Celebrate friendship with cozy custom sweatshirts ",
+        img:"{{ url_for('static', filename='images/t4.jpeg') }}",
+        page:"{{ url_for('product_page', product_id=8) }}",
+        badge:"Popular"
+      },
+    ];
+
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('empty');
+    const q = document.getElementById('q');
+    const category = document.getElementById('category');
+    const sort = document.getElementById('sort');
+    const reset = document.getElementById('reset');
+
+    function render(list){
+      grid.innerHTML = '';
+      if(list.length === 0){ empty.style.display='block'; return; } 
+      else empty.style.display='none';
+
+      for(const p of list){
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-wrap" onclick="openModal('${p.page}')">
+            ${p.badge ? `<div class="badge" aria-hidden="true">${p.badge}</div>` : ''}
+            <img class="thumb" src="${p.img}" alt="${p.title}" />
+          </div>
+          <div class="meta">
+            <div class="title">${p.title}</div>
+            <div class="price">₹${p.price.toLocaleString()}</div>
+          </div>
+          <div class="desc">${p.desc}</div>
+          <div class="actions">
+            <button class="btn" onclick="event.stopPropagation(); openModal('${p.page}')">Quick view</button>
+            <div style="margin-left:auto" class="chip">${p.category}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    function filterAndSort(){
+      const qv = q.value.trim().toLowerCase();
+      const cat = category.value;
+      let out = products.filter(p=>{
+        const matchQ = qv === '' || (p.title + ' ' + p.desc + ' ' + p.category).toLowerCase().includes(qv);
+        const matchCat = (cat === 'all') || p.category === cat;
+        return matchQ && matchCat;
+      });
+      const s = sort.value;
+      if(s==='price-asc') out.sort((a,b)=>a.price-b.price);
+      else if(s==='price-desc') out.sort((a,b)=>b.price-a.price);
+      else out.sort((a,b)=>a.id-b.id);
+      render(out);
+    }
+
+    q.addEventListener('input', filterAndSort);
+    category.addEventListener('change', filterAndSort);
+    sort.addEventListener('change', filterAndSort);
+    reset.addEventListener('click', ()=>{ q.value=''; category.value='all'; sort.value='featured'; filterAndSort(); });
+
+    function openModal(page){
+      document.getElementById('modalIframe').src = page;
+      document.getElementById('productModal').style.display = 'block';
+    }
+    function closeModal(){
+      document.getElementById('productModal').style.display='none';
+      document.getElementById('modalIframe').src='';
+    }
+
+    document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+    document.getElementById('year').textContent = new Date().getFullYear();
+    filterAndSort();
+  </script>
+</body>
+</html>

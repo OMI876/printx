@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout - Cart → Address → Payment</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    .step { display: none; }
+    .step.active { display: block; }
+    .progress-steps .step-badge {
+      width: 32px; height: 32px; border-radius: 50%; display: inline-flex;
+      align-items: center; justify-content: center; font-weight: 600; margin-right: 8px;
+    }
+    .progress-steps .done { background:#198754; color:#fff; }
+    .progress-steps .current { background:#0d6efd; color:#fff; }
+    .progress-steps .pending { background:#e9ecef; color:#6c757d; }
+    .qty-input { width: 64px; text-align: center; }
+    .min-header { border-bottom: 1px solid #eee; }
+    .secure-badges img { height: 24px; }
+    .cart-img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
+    .color-box { width:20px; height:20px; border:1px solid #000; display:inline-block; }
+
+    .back-btn {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      border: none;
+      background: #0d6efd;
+      color: #fff;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      z-index: 1100;
+    }
+    .back-btn:hover { background: #0b5ed7; }
+  </style>
+</head>
+<body class="bg-light">
+
+  <a href="{{ url_for('home') }}" class="back-btn">&lt; BACK</a>
+
+  <header class="bg-white min-header">
+    <div class="container py-3 d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-3">
+        <span class="fs-4 fw-bold">PRINTX</span>
+        <span class="text-muted">Secure Checkout</span>
+      </div>
+      <div class="secure-badges d-none d-md-flex gap-2 align-items-center">
+        <img alt="SSL" src="https://img.shields.io/badge/SSL-Secure-brightgreen" />
+        <img alt="PCI" src="https://img.shields.io/badge/PCI-DSS%20Ready-blue" />
+      </div>
+    </div>
+  </header>
+
+  <main class="container my-4">
+    <!-- Progress -->
+    <div class="progress-steps d-flex align-items-center mb-4">
+      <span id="badge-cart" class="step-badge current">1</span>
+      <span class="me-2 fw-semibold">Cart</span>
+      <span class="mx-2 text-muted">›</span>
+      <span id="badge-address" class="step-badge pending">2</span>
+      <span class="me-2 fw-semibold">Address</span>
+      <span class="mx-2 text-muted">›</span>
+      <span id="badge-payment" class="step-badge pending">3</span>
+      <span class="fw-semibold">Payment</span>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <!-- STEP 1: CART -->
+        <section id="step-cart" class="step active">
+          <div class="card">
+            <div class="card-header bg-white">
+              <h5 class="mb-0">Your Cart</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table align-middle">
+                  <thead>
+                    <tr>
+                      <th>Image</th>
+                      <th>Product</th>
+                      <th>Size</th>
+                      <th>Border</th>
+                      <th class="text-center">Price</th>
+                      <th class="text-center">Qty</th>
+                      <th class="text-end">Total</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="cart-body">
+                    {% for item in items %}
+                    <tr data-id="{{ item[0] }}">
+                      <td>
+                        {% if item[8] %}
+                          <img src="{{ url_for('static', filename=item[8]) }}" class="cart-img">
+                        {% else %}
+                          <span class="text-muted small">No Image</span>
+                        {% endif %}
+                      </td>
+                      <td><div class="fw-semibold">{{ item[2] }}</div></td>
+                      <td>{{ item[4] }}</td>
+                      <td>
+                        {% if item[6] %}
+                          <span class="color-box" style="background:{{ item[6] }}"></span>
+                        {% endif %}
+                        {% if item[7] %}
+                          <span class="small"> {{ item[7] }} in</span>
+                        {% endif %}
+                      </td>
+                      <td class="text-center">₹<span class="price">{{ item[3] }}</span></td>
+                      <td class="text-center">
+                        <input type="number" class="form-control qty-input" value="{{ item[5] }}" min="1"/>
+                      </td>
+                      <td class="text-end">₹<span class="line-total">{{ item[3] * item[5] }}</span></td>
+                      <td class="text-end">
+                        <button class="btn btn-link text-danger p-0 remove-btn">Remove</button>
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td colspan="8" class="text-center text-muted">Your cart is empty</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="d-flex justify-content-end">
+                <button id="to-address" class="btn btn-primary btn-lg">Continue to Address</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 2: ADDRESS -->
+        <section id="step-address" class="step">
+          <div class="card">
+            <div class="card-header bg-white"><h5 class="mb-0">Shipping Address</h5></div>
+            <div class="card-body">
+              <form id="address-form" class="row g-3">
+                <div class="col-md-6"><label class="form-label">Full name</label><input type="text" name="name" class="form-control" required /></div>
+                <div class="col-md-6"><label class="form-label">Phone</label><input type="tel" name="phone" class="form-control" pattern="[0-9]{10}" required /></div>
+                <div class="col-12"><label class="form-label">Address line 1</label><input type="text" name="line1" class="form-control" required /></div>
+                <div class="col-12"><label class="form-label">Address line 2</label><input type="text" name="line2" class="form-control" /></div>
+                <div class="col-md-4"><label class="form-label">City</label><input type="text" name="city" class="form-control" required /></div>
+                <div class="col-md-4"><label class="form-label">State</label><input type="text" name="state" class="form-control" required /></div>
+                <div class="col-md-4"><label class="form-label">PIN</label><input type="text" name="zip" class="form-control" pattern="[0-9]{6}" required /></div>
+              </form>
+              <div class="d-flex justify-content-between mt-2">
+                <button class="btn btn-outline-secondary" data-back="cart">Back to Cart</button>
+                <button id="to-payment" class="btn btn-primary">Continue to Payment</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 3: PAYMENT -->
+        <section id="step-payment" class="step">
+          <div class="card">
+            <div class="card-header bg-white"><h5 class="mb-0">Payment</h5></div>
+            <div class="card-body">
+              <p class="mb-3">Choose your payment method and place the order securely.</p>
+              <div class="form-check"><input class="form-check-input" type="radio" name="payMethod" value="razorpay" checked> <label class="form-check-label">Pay Online (Razorpay)</label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="payMethod" value="cod"> <label class="form-check-label">Cash on Delivery</label></div>
+              <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-outline-secondary" data-back="address">Back to Address</button>
+                <button id="place-order" type="button" class="btn btn-success btn-lg">Place Order</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header bg-white"><h6 class="mb-0">Order Summary</h6></div>
+          <div class="card-body">
+            <ul id="summary-list" class="list-unstyled mb-3"></ul>
+            <div class="d-flex justify-content-between"><span>Subtotal</span><span>₹<span id="summary-subtotal">0</span></span></div>
+            <div class="d-flex justify-content-between"><span>Shipping</span><span id="summary-shipping">₹0</span></div>
+            <div class="d-flex justify-content-between"><span>Discount</span><span>-₹<span id="summary-discount">0</span></span></div>
+            <hr />
+            <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>₹<span id="summary-total">0</span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+  const fmt = (n) => Number(n).toLocaleString("en-IN");
+
+  function recalc() {
+    let subtotal = 0;
+    const summaryList = document.getElementById("summary-list");
+    summaryList.innerHTML = "";
+
+    document.querySelectorAll("#cart-body tr[data-id]").forEach((tr) => {
+      const name = tr.querySelector(".fw-semibold")?.textContent || "";
+      const price = parseFloat(tr.querySelector(".price")?.textContent || 0);
+      const qty = parseInt(tr.querySelector(".qty-input")?.value || 1);
+      const lineTotal = price * qty;
+
+      tr.querySelector(".line-total").textContent = fmt(lineTotal);
+      subtotal += lineTotal;
+
+      if (name) {
+        const li = document.createElement("li");
+        li.className = "d-flex justify-content-between mb-1";
+        li.innerHTML = `<span>${name} × ${qty}</span><span>₹${fmt(lineTotal)}</span>`;
+        summaryList.appendChild(li);
+      }
+    });
+
+    if (subtotal === 0) {
+      summaryList.innerHTML = `<li class="text-muted">Cart is empty</li>`;
+    }
+
+    document.getElementById("summary-subtotal").textContent = fmt(subtotal);
+
+    // ✅ Shipping logic with Free Shipping ≥ ₹400
+    let shipping = 0;
+    let shippingDisplay = "";
+    if (subtotal === 0) {
+      shipping = 0;
+      shippingDisplay = "₹0";
+    } else if (subtotal >= 400) {
+      shipping = 0;
+      shippingDisplay = "<span class='text-success fw-semibold'>Free</span>";
+    } else {
+      shipping = 99;
+      shippingDisplay = "₹" + fmt(shipping);
+    }
+    document.getElementById("summary-shipping").innerHTML = shippingDisplay;
+
+    document.getElementById("summary-discount").textContent = fmt(0);
+    document.getElementById("summary-total").textContent = fmt(subtotal + shipping);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    recalc();
+
+    // Qty change
+    document.querySelectorAll(".qty-input").forEach(input => {
+      input.addEventListener("change", () => {
+        if (input.value < 1) input.value = 1;
+        recalc();
+      });
+    });
+
+    // Remove item
+    document.querySelectorAll(".remove-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const tr = btn.closest("tr");
+        const id = tr.getAttribute("data-id");
+
+        const res = await fetch(`/remove_from_cart/${id}`, {
+          method: "POST",
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+        });
+        const data = await res.json();
+        if (data.success) {
+          tr.remove();
+          recalc();
+        } else {
+          alert(data.message);
+        }
+      });
+    });
+
+    // Step 1 -> Step 2
+    document.getElementById("to-address").addEventListener("click", () => {
+      const cartItems = document.querySelectorAll("#cart-body tr[data-id]");
+      if (cartItems.length === 0) {
+        alert("⚠️ Your cart is empty. Please add items before continuing.");
+        return;
+      }
+      document.getElementById("step-cart").classList.remove("active");
+      document.getElementById("step-address").classList.add("active");
+      document.getElementById("badge-cart").classList.replace("current","done");
+      document.getElementById("badge-address").classList.replace("pending","current");
+    });
+
+    // Step 2 -> Step 3
+    document.getElementById("to-payment").addEventListener("click", () => {
+      const form = document.getElementById("address-form");
+      if (!form.checkValidity()) {
+        alert("⚠️ Please fill all required address details correctly before continuing to Payment.");
+        form.reportValidity();
+        return;
+      }
+      document.getElementById("step-address").classList.remove("active");
+      document.getElementById("step-payment").classList.add("active");
+      document.getElementById("badge-address").classList.replace("current","done");
+      document.getElementById("badge-payment").classList.replace("pending","current");
+    });
+
+    // Back buttons
+    document.querySelectorAll("[data-back]").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        const step=btn.getAttribute("data-back");
+        document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
+        document.getElementById("step-"+step).classList.add("active");
+      });
+    });
+
+    // Place Order
+    document.getElementById("place-order").addEventListener("click", () => {
+      const total=document.getElementById("summary-total").textContent.replace(/,/g,"");
+      if(!total || parseInt(total)<=0){alert("Cart is empty");return;}
+      const method=document.querySelector('input[name="payMethod"]:checked').value;
+      const form=document.getElementById("address-form");
+      const formData=new FormData(form);
+      let params=new URLSearchParams();
+      formData.forEach((v,k)=>params.append(k,v));
+      params.append("amount",total);
+
+      if(method==="razorpay"){
+        fetch("/create_order",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:params.toString()})
+        .then(res=>res.json()).then(order=>{
+          var options={
+            "key":"rzp_test_RL9E4kDmQnuJ7w",
+            "amount":order.amount,"currency":order.currency,"order_id":order.id,
+            "name":"PRINTX","description":"Order Payment",
+            "handler":function(response){
+              var f=document.createElement("form");f.method="POST";f.action="/payment/success";
+              for(var k in response){var h=document.createElement("input");h.type="hidden";h.name=k;h.value=response[k];f.appendChild(h);}
+              params.forEach((v,k)=>{var h=document.createElement("input");h.type="hidden";h.name=k;h.value=v;f.appendChild(h);});
+              document.body.appendChild(f);f.submit();
+            }
+          };
+          new Razorpay(options).open();
+        });
+      } else {
+        fetch("/place_cod_order",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:params.toString()})
+        .then(res=>res.text()).then(html=>{document.open();document.write(html);document.close();});
+      }
+    });
+  });
+</script>
+</body>
+</html>

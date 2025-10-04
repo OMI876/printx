@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Manage Users - PrintX Admin</title>
+  <style>
+    body{margin:0;font-family:Segoe UI, Roboto, sans-serif;background:#f6f7fb;color:#2f3a4a}
+    .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    .sidebar{background:#fff;border-right:1px solid #e3e9f2;position:sticky;top:0;height:100vh;
+             display:flex;flex-direction:column;padding:18px 14px;gap:18px}
+    .brand{font-weight:bold;font-size:20px;text-align:center}
+    .nav{display:flex;flex-direction:column;gap:6px}
+    .nav a{padding:10px 14px;text-decoration:none;color:#2f3a4a;border-radius:8px;transition:.2s}
+    .nav a:hover{background:#f1f4f9}
+    .nav .active{background:#e3e9f2}
+    .spacer{flex:1}
+    .logout{color:#d77a7a;font-weight:bold}
+    .main{padding:22px}
+    table{width:100%;border-collapse:collapse;margin-top:20px;background:#fff;border-radius:8px;overflow:hidden}
+    th,td{padding:10px 14px;border-bottom:1px solid #e3e9f2;text-align:left}
+    th{background:#f1f4f9;color:#6c7a89;font-size:12px;text-transform:uppercase}
+    button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer}
+    .btn-danger{background:#dc3545;color:#fff}
+    .btn-danger:hover{background:#b02a37}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">PrintX Admin</div>
+      <nav class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/users" class="active">Users</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/returns" >Returns/Exchange</a>
+        <a href="/admin/cancelled">Cancelled Orders</a>
+        <a href="/admin/messages">Messages</a>
+      </nav>
+      <div class="spacer"></div>
+      <nav class="nav">
+        <a href="/logout" class="logout">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <h1>Manage Users</h1>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+              {% if user.role != 'admin' %}
+              <form method="POST" action="{{ url_for('admin_bp.delete_user', user_id=user.id) }}" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                <button type="submit" class="btn-danger">Delete</button>
+              </form>
+              {% else %}
+                <span style="color: gray;">N/A</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5">No users found</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </main>
+  </div>
+</body>
+</html>

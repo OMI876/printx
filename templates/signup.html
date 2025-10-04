@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * {margin:0; padding:0; box-sizing:border-box; font-family:'Arial',sans-serif;}
+
+    body {
+      display:flex; justify-content:center; align-items:center;
+      min-height:100vh;
+      background:url("pexels-photo-7130555.jpeg") no-repeat center center fixed;
+      background-size:cover;
+    }
+
+    .container {
+      background:#fff; padding:40px 30px; border-radius:20px;
+      max-width:350px; width:100%;
+      box-shadow:0 8px 20px rgba(0,0,0,0.15); text-align:center;
+    }
+
+    .container img {width:60px; margin-bottom:15px;}
+    .container h2 {margin-bottom:5px; color:#4a2f2f;}
+
+    /* ✅ Flash messages */
+    .flash {
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    .flash.success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .flash.danger  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+    .container input {
+      width:100%; padding:12px; margin:10px 0;
+      border:1px solid #d9a48f; border-radius:8px; outline:none;
+    }
+    .container input:focus {
+      border-color:#b77c5c; box-shadow:0 0 5px rgba(183,124,92,0.4);
+    }
+
+    .password-field {position:relative;}
+    .password-field input {padding-right:40px;}
+    .password-field i {
+      position:absolute; right:12px; top:50%; transform:translateY(-50%);
+      cursor:pointer; color:#888;
+    }
+
+    button {
+      width:100%; padding:12px; background:#d9a48f; border:none;
+      border-radius:8px; color:white; font-size:16px; cursor:pointer;
+    }
+    button:hover {background:#b77c5c;}
+
+    .login-link {font-size:14px; margin-top:15px;}
+    .login-link a {color:#b77c5c; font-weight:bold; text-decoration:none;}
+    .login-link a:hover {text-decoration:underline;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="{{ url_for('static', filename='images/logo1.png') }}" alt="icon">
+    <h2>Create Account</h2>
+
+    <!-- ✅ Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/signup" onsubmit="return validateForm()">
+      <input type="text" name="name" placeholder="Full Name" required>
+      <input type="email" name="email" placeholder="Email address" required>
+      <div class="password-field">
+        <input type="password" name="password" id="password" placeholder="Password (min 8 chars)" minlength="8" required>
+        <i class="fa-solid fa-eye" id="togglePassword"></i>
+      </div>
+      <div class="password-field">
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" minlength="8" required>
+        <i class="fa-solid fa-eye" id="toggleConfirmPassword"></i>
+      </div>
+
+      <button type="submit">Sign Up</button>
+    </form>
+
+    <div class="login-link">
+      <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+    </div>
+  </div>
+
+  <script>
+    // 👁 Toggle Password Visibility
+    function toggleVisibility(toggleId,inputId){
+      const toggle=document.getElementById(toggleId);
+      const input=document.getElementById(inputId);
+      toggle.addEventListener("click",()=>{
+        const type=input.getAttribute("type")==="password"?"text":"password";
+        input.setAttribute("type",type);
+        toggle.classList.toggle("fa-eye-slash");
+      });
+    }
+    toggleVisibility("togglePassword","password");
+    toggleVisibility("toggleConfirmPassword","confirmPassword");
+
+    // ✅ Form Validation
+    function validateForm(){
+      const pass=document.getElementById("password").value;
+      const confirm=document.getElementById("confirmPassword").value;
+      if(pass.length < 8){
+        alert("Password must be at least 8 characters!");
+        return false;
+      }
+      if(pass!==confirm){
+        alert("Passwords do not match!");
+        return false;
+      }
+      return true;
+    }
+
+    // ⏳ Auto-hide flash after 3 seconds
+    setTimeout(() => {
+      document.querySelectorAll('.flash').forEach(el => el.style.display = 'none');
+    }, 3000);
+  </script>
+</body>
+</html>

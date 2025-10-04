@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Banner / Vinyl Sticker Order</title>
+  <style>
+    :root{--bg:#f6f7f9;--panel:#ffffff;--text:#1f2937;--muted:#6b7280;--brand:#2563eb;--brand-weak:#dbe7ff;--ok:#10b981;--warn:#f59e0b;--border:#e5e7eb;}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial;background:var(--bg);color:var(--text);line-height:1.4;}
+    .wrap{max-width:1100px;margin:24px auto;padding:16px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.06);overflow:hidden;}
+    .header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--ok)}
+    .title{font-size:18px;font-weight:600}
+    .grid{display:grid;grid-template-columns:1.1fr 1fr;min-height:560px}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+    .left{padding:20px;background:linear-gradient(180deg,#f9fbff 0%, #f3f4f6 100%);border-right:1px solid var(--border);display:flex;flex-direction:column;gap:14px;}
+    .upload{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .file{
+      background:var(--brand);
+      color:#fff;
+      font-weight:500;
+      padding:12px 18px;
+      border-radius:10px;
+      cursor:pointer;
+      display:inline-block;
+      transition:background .2s ease, transform .05s ease;
+      box-shadow:0 6px 18px rgba(37,99,235,.25);
+    }
+    .file:hover{background:#1d4ed8}
+    .file:active{transform:translateY(1px)}
+    .hint{font-size:12px;color:var(--muted)}
+    .stage{flex:1;display:grid;place-items:center;position:relative;overflow:hidden;border-radius:12px;background:#fff;border:1px solid var(--border)}
+    .canvas{position:relative;width:100%;height:100%;display:grid;place-items:center;padding:16px}
+    .preview-wrap{position:relative;max-width:100%;max-height:100%;display:inline-block;border:2px dashed var(--brand-weak);background:#fafbff}
+    .preview{display:block;max-width:100%;max-height:420px;object-fit:contain;border-radius:6px}
+    .badge{position:absolute;background:rgba(37,99,235,.08);color:var(--text);font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid var(--brand-weak);backdrop-filter:saturate(140%) blur(2px);pointer-events:none;white-space:nowrap;}
+    .badge-h{left:50%;transform:translateX(-50%);bottom:-14px}
+    .badge-w{top:50%;right:-14px;transform:translateY(-50%) rotate(-90deg)}
+    .right{padding:22px;display:flex;flex-direction:column;gap:16px}
+    .group{display:flex;flex-direction:column;gap:8px}
+    label{font-size:14px;color:var(--muted)}
+    .row{display:flex;gap:12px}
+    .row > .field{flex:1}
+    .field input,.field select{width:100%;padding:12px 12px;border:1px solid var(--border);border-radius:10px;font-size:15px;background:#fff;color:var(--text);outline:none;transition:border .15s ease, box-shadow .15s ease;}
+    .field input:focus,.field select:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+    .toggle{display:flex;align-items:center;gap:10px}
+    .switch{width:48px;height:28px;border-radius:999px;background:#e5e7eb;position:relative;cursor:pointer;border:1px solid var(--border);transition:background .2s ease;}
+    .knob{position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;border:1px solid var(--border);transition:left .2s ease}
+    .switch.on{background:#c7d7ff;border-color:#b7c8ff}
+    .switch.on .knob{left:22px}
+    .calc{background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center}
+    .price{font-size:20px;font-weight:700;color:var(--text)}
+    .note{font-size:12px;color:var(--muted)}
+    .primary{appearance:none;border:none;background:var(--brand);color:#fff;padding:12px 16px;border-radius:10px;font-size:15px;cursor:pointer;transition:transform .05s ease, box-shadow .2s ease, background .2s ease;box-shadow:0 6px 18px rgba(37,99,235,.25);}
+    .primary:active{transform:translateY(1px)}
+    .disabled{opacity:.5;pointer-events:none}
+    .small{font-size:12px;color:var(--muted)}
+    .sep{height:1px;background:var(--border);margin:6px 0}
+    .footer-note{margin-top:16px;font-size:14px;color:var(--text);line-height:1.5;background:#f9fafb;padding:12px;border-radius:8px;border:1px solid var(--border)}
+    .footer-note strong{color:var(--brand)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <span class="dot"></span>
+        <div class="title">Banner / Vinyl Sticker Order</div>
+      </div>
+      <div class="grid">
+        <!-- Left: Upload + Preview -->
+        <div class="left">
+          <div class="upload">
+            <label class="file">
+              <input id="fileInput" type="file" accept="image/*" hidden>
+              Upload Image
+            </label>
+            <span class="hint">PNG/JPG up to ~10MB</span>
+          </div>
+          <div class="stage">
+            <div class="canvas">
+              <div id="previewWrap" class="preview-wrap" style="display:none;">
+                <img id="preview" class="preview" alt="preview">
+                <div id="badgeH" class="badge badge-h">Height: 0 ft</div>
+                <div id="badgeW" class="badge badge-w">Width: 0 ft</div>
+              </div>
+              <div id="emptyState" class="small">Upload an image to preview and show dimensions.</div>
+            </div>
+          </div>
+          <div class="small">Entered height and width values are shown as badges around the preview.</div>
+        </div>
+
+        <!-- Right: Form -->
+        <div class="right">
+          <div class="group">
+            <div class="row">
+              <div class="field">
+                <label for="productType">Product type</label>
+                <select id="productType">
+                  <option value="Banner">Banner</option>
+                  <option value="Vinyl Sticker">Vinyl Sticker</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="printQuality">Print Quality</label>
+                <select id="printQuality">
+                  <option value="Normal">Normal Print</option>
+                  <option value="Star">Star Print</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="heightFt">Enter height (feet)</label>
+                <input id="heightFt" type="number" min="0" step="0.1" placeholder="e.g., 4.5">
+              </div>
+              <div class="field">
+                <label for="widthFt">Enter width (feet)</label>
+                <input id="widthFt" type="number" min="0" step="0.1" placeholder="e.g., 6">
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="borderIn">Specific border length (inch)</label>
+                <input id="borderIn" type="number" min="0" step="0.1" placeholder="e.g., 1">
+              </div>
+              <div class="field" id="frameField">
+                <label>Wooden frame</label>
+                <div class="toggle">
+                  <div id="frameSwitch" class="switch" role="switch" aria-checked="false" tabindex="0" aria-label="Wooden frame">
+                    <div class="knob"></div>
+                  </div>
+                  <span id="frameLabel" class="small">No</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="group">
+            <div class="calc">
+              <div>
+                <div class="small">Price calculator</div>
+                <div class="note" id="rateNote">Rate: Rs 10/sq ft (Normal, no frame)</div>
+              </div>
+              <div class="price" id="price">Rs 0.00</div>
+            </div>
+            <div class="small" id="areaNote">Area: 0.00 sq ft</div>
+          </div>
+
+          <button id="buyNow" class="primary disabled">Buy Now</button>
+
+          <div class="footer-note">
+            <p>If you don’t have a ready design, <strong>we can create one for you</strong>.</p>
+            <p>📲 WhatsApp us at <strong>7021284917</strong> with your details or <strong>call us directly</strong> for assistance.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const preview = document.getElementById('preview');
+    const previewWrap = document.getElementById('previewWrap');
+    const emptyState = document.getElementById('emptyState');
+
+    const productType = document.getElementById('productType');
+    const printQuality = document.getElementById('printQuality');
+    const heightFt = document.getElementById('heightFt');
+    const widthFt = document.getElementById('widthFt');
+    const borderIn = document.getElementById('borderIn');
+
+    const frameField = document.getElementById('frameField');
+    const frameSwitch = document.getElementById('frameSwitch');
+    const frameLabel = document.getElementById('frameLabel');
+    const rateNote = document.getElementById('rateNote');
+    const priceEl = document.getElementById('price');
+    const areaNote = document.getElementById('areaNote');
+    const buyNow = document.getElementById('buyNow');
+
+    const badgeH = document.getElementById('badgeH');
+    const badgeW = document.getElementById('badgeW');
+
+    let hasImage = false;
+    let frameOn = false;
+
+    function updateBadges(){
+      const h = parseFloat(heightFt.value) || 0;
+      const w = parseFloat(widthFt.value) || 0;
+      badgeH.textContent = `Height: ${h} ft`;
+      badgeW.textContent = `Width: ${w} ft`;
+      badgeH.style.display = hasImage ? 'block' : 'none';
+      badgeW.style.display = hasImage ? 'block' : 'none';
+    }
+
+    function calcPrice(){
+      const h = Math.max(0, parseFloat(heightFt.value) || 0);
+      const w = Math.max(0, parseFloat(widthFt.value) || 0);
+      const area = h * w;
+
+      let baseRate = printQuality.value === "Star" ? 15 : 10;
+      let rate = frameOn ? baseRate + 10 : baseRate;
+
+      const price = area * rate;
+
+      rateNote.textContent = `Rate: Rs ${rate}/sq ft (${printQuality.value}${frameOn ? " + Frame" : ""})`;
+      priceEl.textContent = `Rs ${price.toFixed(2)}`;
+      areaNote.textContent = `Area: ${area.toFixed(2)} sq ft`;
+
+      const validDims = h > 0 && w > 0;
+      buyNow.classList.toggle('disabled', !(hasImage && validDims));
+    }
+
+    document.querySelector('.file').addEventListener('click', ()=> fileInput.click());
+    fileInput.addEventListener('change', (e)=>{
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      const url = URL.createObjectURL(file);
+      preview.src = url;
+      preview.onload = ()=>{
+        hasImage = true;
+        previewWrap.style.display = 'inline-block';
+        emptyState.style.display = 'none';
+        updateBadges();
+        calcPrice();
+      };
+    });
+
+    [productType, printQuality, heightFt, widthFt, borderIn].forEach(el=>{
+      el.addEventListener('input', ()=>{
+        updateBadges();
+        calcPrice();
+      });
+    });
+
+    function setFrame(on){
+      frameOn = on;
+      frameSwitch.classList.toggle('on', on);
+      frameSwitch.setAttribute('aria-checked', on ? 'true' : 'false');
+      frameLabel.textContent = on ? 'Yes' : 'No';
+      calcPrice();
+    }
+    frameSwitch.addEventListener('click', ()=> setFrame(!frameOn));
+    frameSwitch.addEventListener('keydown', (e)=>{
+      if(e.key === ' ' || e.key === 'Enter'){
+        e.preventDefault();
+        setFrame(!frameOn);
+      }
+    });
+
+    // Hide frame for stickers
+    productType.addEventListener('change', ()=>{
+      if(productType.value === "Vinyl Sticker"){
+        frameField.style.display = "none";
+        setFrame(false);
+      } else {
+        frameField.style.display = "block";
+      }
+      calcPrice();
+    });
+
+    // ✅ Buy Now -> Send to backend
+    buyNow.addEventListener('click', ()=>{
+      if(buyNow.classList.contains('disabled')) return;
+
+      const formData = new FormData();
+      formData.append("title", productType.value + " ("+printQuality.value+")");
+      formData.append("price", parseFloat(priceEl.textContent.replace(/[^\d.]/g,'')) || 0);
+      formData.append("size", heightFt.value+"ft x "+widthFt.value+"ft");
+      formData.append("border_width", borderIn.value+" inch");
+      formData.append("frame", frameOn ? "Yes" : "No");
+
+      if(fileInput.files[0]){
+        formData.append("image", fileInput.files[0]);
+      }
+
+      fetch("/add_to_cart", {
+        method: "POST",
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success){
+          window.location.href = "/cart"; // redirect to cart
+        } else {
+          alert(data.message || "Failed to add to cart");
+        }
+      })
+      .catch(err => alert("Error: " + err));
+    });
+
+    updateBadges();
+    calcPrice();
+  </script>
+</body>
+</html>

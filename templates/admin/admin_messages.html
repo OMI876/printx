@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Messages - PrintX Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: Segoe UI, Roboto, sans-serif;
+      background: #f6f7fb;
+      color: #2f3a4a;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+    .sidebar {
+      background: #fff;
+      border-right: 1px solid #e3e9f2;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 18px 14px;
+      gap: 18px;
+    }
+    .brand {
+      font-weight: bold;
+      font-size: 20px;
+      text-align: center;
+    }
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .nav a {
+      padding: 10px 14px;
+      text-decoration: none;
+      color: #2f3a4a;
+      border-radius: 8px;
+      transition: .2s;
+    }
+    .nav a:hover { background: #f1f4f9; }
+    .nav .active { background: #e3e9f2; }
+    .spacer { flex: 1; }
+    .logout { color: #d77a7a; font-weight: bold; }
+    .main { padding: 22px; }
+    h1 { margin-bottom: 20px; }
+
+    /* ✅ Table consistent style */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #fff;
+      border: 1px solid #cfd8e3;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px 14px;
+      border: 1px solid #cfd8e3;
+      text-align: left;
+      font-size: 14px;
+      vertical-align: top;
+    }
+    th {
+      background: #f1f4f9;
+      color: #6c7a89;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    .message-cell {
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">PrintX Admin</div>
+      <nav class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/users">Users</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/returns">Returns/Exchange</a>
+        <a href="/admin/cancelled">Cancelled Orders</a> 
+        <a href="/admin/messages" class="active">Messages</a>
+      </nav>
+      <div class="spacer"></div>
+      <nav class="nav">
+        <a href="/logout" class="logout">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+      <h1>Manage Messages</h1>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Message</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in messages %}
+          <tr>
+            <td>{{ m.id }}</td>
+            <td>{{ m.name }}</td>
+            <td>{{ m.email }}</td>
+            <td>{{ m.phone }}</td>
+            <td class="message-cell" title="{{ m.message }}">{{ m.message }}</td>
+            <td>{{ m.created_at }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center">No messages found</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Backside Spiderman Printed Oversized T-shirt</title>
+  <style>
+    body{margin:0;background:#f9fafb;font-family:Inter, sans-serif;color:#111;line-height:1.5}
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    .product{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+    @media(max-width:768px){.product{grid-template-columns:1fr}}
+    .image-box{background:#fff;padding:16px;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,0.05)}
+    .image-box img{width:100%;border-radius:12px;object-fit:cover}
+    .details h1{font-size:1.8rem;margin:0 0 12px}
+    .price{font-size:1.4rem;font-weight:700;color:#0f62fe;margin-bottom:14px}
+    .desc{color:#4b5563;font-size:1rem;margin-bottom:20px}
+    .options{margin-bottom:20px}
+    .options label{display:block;margin-bottom:6px;font-weight:600}
+    select{padding:6px 10px;border-radius:6px;border:1px solid #ddd;font-size:0.95rem;width:100%;max-width:220px}
+    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .btn{padding:10px 16px;font-size:1rem;border-radius:8px;cursor:pointer;border:0;box-shadow:0 3px 8px rgba(0,0,0,0.08)}
+    .btn.primary{background:#0f62fe;color:#fff}
+    .btn.buy{background:#fff;border:1px solid #ddd;color:#111}
+    .extra{margin-top:32px}
+    .extra h2{font-size:1.3rem;margin-bottom:12px}
+    .extra p{color:#374151}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="product">
+      <!-- Left: Image -->
+      <div class="image-box">
+        <img src="{{ url_for('static', filename='images/t2.jpeg') }}" alt="Spiderman T-shirt" />
+      </div>
+
+      <!-- Right: Details -->
+      <div class="details">
+        <h1>Backside Spiderman Printed Oversized T-shirt</h1>
+        <div class="price">₹400</div>
+        <div class="desc">
+          Unleash your inner hero with this edgy black Spider-Man graphic tee. Featuring a futuristic Spidey mask design in vibrant red and blue tones, it’s perfect for streetwear lovers and Marvel fans alike.
+        </div>
+
+        <!-- ✅ Size Option -->
+        <div class="options">
+          <label for="size">Size choose karein:</label>
+          <select id="size" name="size">
+            <option>S</option>
+            <option>M</option>
+            <option>L</option>
+            <option>XL</option>
+            <option>XXL</option>
+          </select>
+        </div>
+
+        <!-- ✅ Buttons -->
+        <form id="cartForm" class="btns">
+          <input type="hidden" name="product_id" value="6">
+          <input type="hidden" name="title" value="Backside Spiderman Printed Oversized T-shirt">
+          <input type="hidden" name="price" value="400">
+          <input type="hidden" name="size" id="cart_size" value="S">
+
+          <button type="submit" class="btn primary">🛒 Add to Cart</button>
+          <button type="button" class="btn buy" id="buyNowBtn">⚡ Buy Now</button>
+        </form>
+
+        <div class="extra">
+          <h2>Product Details</h2>
+          <p>
+            • Crafted from 100% breathable cotton<br>
+            • Black oversized fit with drop shoulders<br>
+            • Futuristic Spider-Man tech-style mask back print<br>
+            • Relaxed and durable with double-stitched hems<br>
+            • Perfect for casual outings, fan conventions, or streetwear<br>
+            • Available sizes: S, M, L, XL, XXL<br>
+            • Price: ₹400 only<br>
+            • Delivery within 2–3 working days
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sizeSelect = document.getElementById("size");
+    const cartSize = document.getElementById("cart_size");
+    const cartForm = document.getElementById("cartForm");
+    const buyNowBtn = document.getElementById("buyNowBtn");
+
+    // update size before submit
+    sizeSelect.addEventListener("change", () => {
+      cartSize.value = sizeSelect.value;
+    });
+
+    // Add to Cart
+    cartForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(cartForm);
+      const res = await fetch("/add_to_cart", { method: "POST", body: formData });
+      const data = await res.json();
+      alert(data.message);
+    });
+
+    // Buy Now → add then open cart page
+    buyNowBtn.addEventListener("click", async () => {
+      const formData = new FormData(cartForm);
+      const res = await fetch("/add_to_cart", { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.success) {
+        window.open("/cart", "_blank");
+      } else {
+        alert(data.message);
+      }
+    });
+  </script>
+</body>
+</html>

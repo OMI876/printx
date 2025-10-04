@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profile</title>
+  <style>
+    :root {
+      --bg: #fafafa; --surface: #ffffff; --text: #111827;
+      --muted: #6b7280; --border: #e5e7eb; --accent: #2563eb; --soft: #f3f4f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: system-ui, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: grid; grid-template-columns: 240px 1fr;
+    }
+    .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 20px 16px; }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .logo { width: 28px; height: 28px; border-radius: 6px; background: var(--accent); opacity: .85; }
+    .brand h1 { margin: 0; font-size: 18px; }
+    .muted { color: var(--muted); margin: 0 0 16px; font-size: 13px; }
+    .tabs { display: grid; gap: 6px; }
+    .tab-btn {
+      appearance: none; border: 1px solid var(--border); background: var(--surface);
+      color: var(--text); padding: 10px 12px; width: 100%; text-align: left;
+      border-radius: 10px; cursor: pointer; font-size: 14px; transition: 0.2s;
+    }
+    .tab-btn:hover { background: var(--soft); }
+    .tab-btn[aria-selected="true"] { border-color: #cbd5e1; background: var(--soft); font-weight: 600; }
+    .main { padding: 24px; min-width: 0; }
+    header { margin-bottom: 14px; }
+    .title { margin: 0; font-size: 20px; font-weight: 600; }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .panel h3 { margin: 0 0 10px; font-size: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px 14px; }
+    .row { display: grid; grid-template-columns: 140px 1fr; align-items: center; gap: 10px; }
+    label { color: var(--muted); font-size: 13px; }
+    input, select, textarea {
+      width: 100%; background: #fff; border: 1px solid var(--border); color: var(--text);
+      border-radius: 8px; padding: 10px; outline: none; font-size: 14px;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 14px; }
+    th { color: var(--muted); font-weight: 600; }
+    [role="tabpanel"][hidden] { display: none; }
+    ul.order-items { list-style: none; padding: 0; margin: 0; }
+    ul.order-items li { margin: 4px 0; padding: 6px; background: var(--soft); border-radius: 6px; font-size: 13px; }
+    @media (max-width: 960px) {
+      body { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+    }
+    .btn {
+      border: 1px solid var(--border); background: var(--soft); color: var(--text);
+      padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 14px;
+      transition: 0.2s;
+    }
+    .btn:hover { background: #e5e7eb; }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.primary:hover { background: #1e40af; }
+    .btn.warn { background: #ef4444; color: #fff; border-color: #ef4444; }
+    .btn.warn:hover { background: #b91c1c; }
+    .actions { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* ✅ Green tick style */
+    .tick { color: green; font-size: 18px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><div class="logo"></div><h1>Profile</h1></div>
+    <p class="muted">Manage account and orders</p>
+    <div class="tabs" role="tablist">
+      <button class="tab-btn" role="tab" aria-controls="panel-user" aria-selected="true" data-hash="#user">User Info</button>
+      <button class="tab-btn" role="tab" aria-controls="panel-addresses" aria-selected="false" data-hash="#addresses">Addresses</button>
+      <button class="tab-btn" role="tab" aria-controls="panel-settings" aria-selected="false" data-hash="#settings">Account Settings</button>
+      <button class="tab-btn" role="tab" aria-controls="panel-history" aria-selected="false" data-hash="#history">Order History</button>
+      <button class="tab-btn" role="tab" aria-controls="panel-logout" aria-selected="false" data-hash="#logout">Logout</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 class="title" id="pageTitle">User Info</h2>
+      <button onclick="window.location.href='/'" class="btn">← Back</button>
+    </header>
+
+    <!-- User Info -->
+    <section id="panel-user" role="tabpanel">
+      <div class="panel"><h3>Profile</h3>
+        <div class="grid">
+          <div class="row"><label for="full_name">Full Name</label><input id="full_name" /></div>
+          <div class="row"><label for="email">Email</label><input id="email" type="email" /></div>
+          <div class="row"><label for="phone">Phone</label><input id="phone" /></div>
+          <div class="row"><label for="dob">DOB</label><input id="dob" type="date" /></div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="btnUserReset">Reset</button>
+          <button class="btn primary" id="btnUserSave">Save</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Addresses -->
+    <section id="panel-addresses" role="tabpanel" hidden>
+      <div class="panel"><h3>Saved Addresses</h3>
+        <div class="grid">
+          <div class="row"><label for="addr_type">Type</label><select id="addr_type"><option>Home</option><option>Work</option></select></div>
+          <div class="row"><label for="addr_line1">Line 1</label><input id="addr_line1" /></div>
+          <div class="row"><label for="addr_line2">Line 2</label><input id="addr_line2" /></div>
+          <div class="row"><label for="addr_city">City</label><input id="addr_city" /></div>
+          <div class="row"><label for="addr_state">State</label><input id="addr_state" /></div>
+          <div class="row"><label for="addr_pin">PIN</label><input id="addr_pin" /></div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="btnAddrReset">Reset</button>
+          <button class="btn primary" id="btnAddrSave">Save</button>
+        </div>
+      </div>
+      <div class="panel"><h3>Address Book</h3><table id="addressTable"><thead><tr><th>Type</th><th>Address</th><th>PIN</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- Account Settings -->
+    <section id="panel-settings" role="tabpanel" hidden>
+      <div class="panel"><h3>Security</h3>
+        <div class="grid">
+          <div class="row"><label for="password">New Password</label><input id="password" type="password" /></div>
+          <div class="row"><label for="confirm_password">Confirm</label><input id="confirm_password" type="password" /></div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="btnChangePassword">Change</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Order History -->
+    <section id="panel-history" role="tabpanel" hidden>
+      <div class="panel"><h3>Order History</h3>
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Actions</th>
+              <th>Return / Exchange</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Logout -->
+    <section id="panel-logout" role="tabpanel" hidden>
+      <div class="panel"><h3>Confirm Logout</h3>
+        <div class="actions">
+          <button class="btn" id="btnCancelLogout">Cancel</button>
+          <button class="btn warn" id="btnLogout">Logout</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const tabButtons=[...document.querySelectorAll('[role="tab"]')];
+    const tabPanels=[...document.querySelectorAll('[role="tabpanel"]')];
+    const pageTitle=document.getElementById('pageTitle');
+    function setActiveTab(id){tabButtons.forEach(b=>{const sel=b.getAttribute('aria-controls')===id;b.setAttribute('aria-selected',sel);b.tabIndex=sel?0:-1});tabPanels.forEach(p=>p.hidden=p.id!==id);const btn=tabButtons.find(b=>b.getAttribute('aria-controls')===id);if(btn){history.replaceState(null,'',btn.dataset.hash||'#');pageTitle.textContent=btn.textContent.trim();}}
+    function getTargetFromHash(){const h=location.hash||'#user';const b=tabButtons.find(b=>b.dataset.hash===h);return b?b.getAttribute('aria-controls'):'panel-user';}
+    tabButtons.forEach(btn=>btn.addEventListener('click',()=>setActiveTab(btn.getAttribute('aria-controls'))));
+    window.addEventListener('hashchange',()=>setActiveTab(getTargetFromHash()));
+    async function apiGet(u){const r=await fetch(u);if(!r.ok)return null;return await r.json();}
+    async function apiPost(u,p){const r=await fetch(u,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok)return{ok:false};return await r.json();}
+    async function loadUser(){const u=await apiGet('/api/user/me');if(!u)return;full_name.value=u.full_name||'';email.value=u.email||'';phone.value=u.phone||'';dob.value=u.dob||'';}
+    async function loadAddresses(){const rows=await apiGet('/api/addresses');const tb=document.querySelector('#addressTable tbody');tb.innerHTML='';(rows||[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${r.type}</td><td>${r.address}</td><td>${r.pin}</td><td><button class="btn warn" data-del="${r.id}">Delete</button></td>`;tb.appendChild(tr);});tb.onclick=async e=>{const id=e.target.dataset.del;if(id){await apiPost('/api/addresses/delete',{id:Number(id)});loadAddresses();}};}
+
+    async function loadHistory() {
+      const rows = await apiGet('/api/orders/history');
+      const tb = document.querySelector('#historyTable tbody');
+      tb.innerHTML = '';
+      (rows || []).forEach(r => {
+        const tr = document.createElement('tr');
+
+        // ✅ Apply button hide if Returned/Exchanged/Cancelled
+        const returnCell = (r.status === "Returned" || r.status === "Exchanged" || r.status === "Cancelled")
+          ? `<span class="tick">✔</span>`
+          : `<button class="btn" onclick="window.location.href='/return?order=${r.id}'">Apply</button>`;
+
+        tr.innerHTML = `
+          <td>${r.id}</td>
+          <td>${r.date}</td>
+          <td>${r.total}</td>
+          <td>${r.status}</td>
+          <td>
+            <button class="btn" data-invoice="${r.id}" data-status="${r.status}">Invoice</button>
+            <button class="btn primary" data-view="${r.id}">View</button>
+            <button class="btn warn" data-cancel="${r.id}">Cancel</button>
+          </td>
+          <td style="text-align:center;">${returnCell}</td>
+        `;
+        tb.appendChild(tr);
+
+        const dtr = document.createElement('tr');
+        dtr.style.display = 'none';
+        dtr.innerHTML = `<td colspan="6"><em>Loading...</em></td>`;
+        tb.appendChild(dtr);
+      });
+
+      tb.onclick = async e => {
+        if (e.target.dataset.invoice) {
+          const id = e.target.dataset.invoice;
+          const status = e.target.dataset.status;
+          if (status === "Delivered") {
+            window.open('/api/orders/' + id + '/invoice','_blank');
+          } else {
+            alert("⚠️ Your order is not delivered yet.\nInvoice will be available only after delivery is completed.");
+          }
+        }
+
+        if (e.target.dataset.view) {
+          const id = e.target.dataset.view;
+          const dtr = e.target.closest('tr').nextElementSibling;
+          if (dtr.style.display === 'none') {
+            const items = await apiGet('/api/orders/' + id + '/items');
+            dtr.innerHTML = `<td colspan="6"><ul class="order-items">${(items || []).map(it =>
+              `<li>${it.name} × ${it.qty} — ₹${it.price}</li>`).join('')}</ul></td>`;
+            dtr.style.display = '';
+          } else {
+            dtr.style.display = 'none';
+          }
+        }
+
+        if (e.target.dataset.cancel) {
+          const id = e.target.dataset.cancel;
+          if (confirm("Are you sure you want to cancel this order?")) {
+            const res = await apiPost('/api/orders/cancel', { order_id: id });
+            if (res.ok) {
+              alert("✅ Order cancelled successfully!");
+              loadHistory();
+            } else {
+              alert("❌ Failed to cancel order.");
+            }
+          }
+        }
+      };
+    }
+
+    btnUserSave.onclick=async()=>{await apiPost('/api/user/update',{full_name:full_name.value,email:email.value,phone:phone.value,dob:dob.value});alert('Profile updated');};
+    btnUserReset.onclick=loadUser;
+    btnAddrSave.onclick=async()=>{await apiPost('/api/addresses/save',{type:addr_type.value,line1:addr_line1.value,line2:addr_line2.value,city:addr_city.value,state:addr_state.value,pin:addr_pin.value});await loadAddresses();};
+    btnAddrReset.onclick=()=>{['addr_line1','addr_line2','addr_city','addr_state','addr_pin'].forEach(id=>document.getElementById(id).value='');addr_type.value='Home';};
+    btnChangePassword.onclick=async()=>{if(password.value!==confirm_password.value){alert('Passwords do not match');return;}await apiPost('/api/user/change-password',{password:password.value});alert('Password changed');password.value=confirm_password.value='';};
+    btnCancelLogout.onclick=()=>setActiveTab('panel-user');
+    btnLogout.onclick=async()=>{await apiPost('/api/auth/logout',{});location.href='/login';};
+    window.addEventListener('DOMContentLoaded',()=>{setActiveTab(getTargetFromHash());loadUser();loadAddresses();loadHistory();});
+  </script>
+</body>
+</html>

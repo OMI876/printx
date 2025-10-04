@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Laptop Sticker Pack</title>
+  <style>
+    body{margin:0;background:#f9fafb;font-family:Inter, sans-serif;color:#111;line-height:1.5}
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    .product{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+    @media(max-width:768px){.product{grid-template-columns:1fr}}
+    .image-box{background:#fff;padding:16px;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,0.05)}
+    .image-box img{width:100%;border-radius:12px;object-fit:cover}
+    .details h1{font-size:1.8rem;margin:0 0 12px}
+    .price{font-size:1.5rem;font-weight:700;color:#0f62fe;margin-bottom:14px}
+    .desc{color:#4b5563;font-size:1rem;margin-bottom:20px}
+    .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    .btn{padding:12px 18px;font-size:1rem;border-radius:10px;cursor:pointer;border:0;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+    .btn.primary{background:#0f62fe;color:#fff}
+    .btn.buy{background:#fff;border:1px solid #ddd;color:#111}
+    .extra{margin-top:32px}
+    .extra h2{font-size:1.3rem;margin-bottom:12px}
+    .extra p{color:#374151}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="product">
+      <!-- Image -->
+      <div class="image-box">
+        <img src="{{ url_for('static', filename='images/s3.jpeg') }}" alt="Laptop Sticker Pack" />
+      </div>
+
+      <!-- Details -->
+      <div class="details">
+        <h1>Laptop Sticker Pack</h1>
+        <div class="price">₹249</div>
+        <div class="desc">
+          Pack of 10 cool and trendy stickers for your laptop and gadgets. Add style and personality to your everyday essentials.
+        </div>
+
+        <!-- ✅ Buttons (desc ke niche hi) -->
+        <form id="cartForm" class="btns">
+          <input type="hidden" name="product_id" value="11">
+          <input type="hidden" name="title" value="Laptop Sticker Pack">
+          <input type="hidden" name="price" value="249">
+          <input type="hidden" name="size" value="One Size">
+
+          <button type="submit" class="btn primary">🛒 Add to Cart</button>
+          <button type="button" class="btn buy" id="buyNowBtn">⚡ Buy Now</button>
+        </form>
+
+        <div class="extra">
+          <h2>Product Details</h2>
+          <p>
+            • Includes 10 premium waterproof vinyl stickers<br>
+            • Vibrant & scratch-resistant prints<br>
+            • Easy to peel and stick, reusable<br>
+            • Perfect for laptops, diaries, bottles & gadgets<br>
+            • Leaves no residue on removal<br>
+            • Price: ₹249 only<br>
+            • Delivery: Within 2–3 working days
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cartForm = document.getElementById("cartForm");
+    const buyNowBtn = document.getElementById("buyNowBtn");
+
+    // Add to Cart
+    cartForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(cartForm);
+      const res = await fetch("/add_to_cart", { method: "POST", body: formData });
+      const data = await res.json();
+      alert(data.message);
+    });
+
+    // ✅ Buy Now (add + redirect to cart in new page)
+    buyNowBtn.addEventListener("click", async () => {
+      const formData = new FormData(cartForm);
+      const res = await fetch("/add_to_cart", { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.success) {
+        window.open("/cart", "_blank");
+      } else {
+        alert(data.message);
+      }
+    });
+  </script>
+</body>
+</html>

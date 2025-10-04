@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin - Manage Products</title>
+  <style>
+    body{margin:0;font-family:Segoe UI, Roboto, sans-serif;background:#f6f7fb;color:#2f3a4a}
+    .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    .sidebar{background:#fff;border-right:1px solid #e3e9f2;position:sticky;top:0;height:100vh;
+             display:flex;flex-direction:column;padding:18px 14px;gap:18px}
+    .brand{font-weight:bold;font-size:20px;text-align:center}
+    .nav{display:flex;flex-direction:column;gap:6px}
+    .nav a{padding:10px 14px;text-decoration:none;color:#2f3a4a;border-radius:8px}
+    .nav a:hover{background:#f1f4f9}
+    .nav .active{background:#e3e9f2}
+    .spacer{flex:1}
+    .logout{color:#d77a7a;font-weight:bold}
+    .main{padding:22px}
+    .btn{display:inline-block;padding:8px 14px;background:#8bd8bd;color:#fff;
+         border:none;border-radius:6px;cursor:pointer;font-weight:600}
+    table{width:100%;border-collapse:collapse;margin-top:20px;background:#fff;border-radius:8px;overflow:hidden}
+    th,td{padding:10px 14px;border-bottom:1px solid #e3e9f2;text-align:left}
+    th{background:#f1f4f9;color:#6c7a89;font-size:12px;text-transform:uppercase}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">PrintX Admin</div>
+      <nav class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/users">Users</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/products" class="active">Products</a>
+        <a href="/admin/messages">Messages</a>
+      </nav>
+      <div class="spacer"></div>
+      <nav class="nav">
+        <a href="/logout" class="logout">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <h1>Manage Products</h1>
+
+      <button class="btn">+ Add Product</button>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+          <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.category }}</td>
+            <td>₹{{ product.price }}</td>
+            <td>{{ product.stock }}</td>
+            <td>
+              <a href="/admin/products/edit/{{ product.id }}">Edit</a> |
+              <a href="/admin/products/delete/{{ product.id }}" style="color:#d77a7a">Delete</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center">No products available</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </main>
+  </div>
+</body>
+</html>

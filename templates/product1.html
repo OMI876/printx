@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aesthetic Frame</title>
+  <style>
+    body{margin:0;background:#f9fafb;font-family:Inter, sans-serif;color:#111;line-height:1.5}
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    .product{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+    @media(max-width:768px){.product{grid-template-columns:1fr}}
+    .image-box{background:#fff;padding:16px;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,0.05)}
+    .image-box img{width:100%;border-radius:12px;object-fit:cover}
+    .details h1{font-size:1.8rem;margin:0 0 12px}
+    .price{font-size:1.5rem;font-weight:700;color:#0f62fe;margin-bottom:14px}
+    .desc{color:#4b5563;font-size:1rem;margin-bottom:20px}
+    .options{margin-bottom:20px}
+    .options label{display:block;margin-bottom:6px;font-weight:600}
+    select,input{padding:8px 10px;border-radius:8px;border:1px solid #ddd;font-size:1rem;width:100%;max-width:320px}
+    .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+    .btn{padding:12px 18px;font-size:1rem;border-radius:10px;cursor:pointer;border:0;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+    .btn.primary{background:#0f62fe;color:#fff}
+    .btn.secondary{background:#16a34a;color:#fff}
+    .extra{margin-top:20px}
+    .extra h2{font-size:1.3rem;margin-bottom:12px}
+    .extra ul{color:#374151;padding-left:18px}
+
+    /* 🟦 Upload Button Styling */
+    .upload-label {
+      display:inline-block;
+      padding:10px 14px;
+      background:#fff;
+      color:#0f62fe;
+      border:2px solid #0f62fe;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+      transition:0.2s;
+      margin-top:10px;
+    }
+    .upload-label:hover {
+      background:#0f62fe;
+      color:#fff;
+    }
+    #image {
+      display:none;
+    }
+    .file-name {
+      margin-top:8px;
+      font-size:0.9rem;
+      color:#374151;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="product">
+      <!-- Left: Image -->
+      <div class="image-box">
+        <img src="{{ url_for('static', filename='images/f1.jpeg') }}" alt="Aesthetic frame" />
+      </div>
+
+      <!-- Right: Details -->
+      <div class="details">
+        <h1>Trending birthday frame</h1>
+        <div class="price" id="price">₹600</div>
+        <div class="desc">
+          Celebrate your special moments with this custom photo collage frame featuring your favorite memories. A perfect birthday gift that blends emotion and elegance in one design. For personalized image - Say hi! Whatsapp 8454800234
+        </div>
+
+        <div class="options">
+          <label for="size">Choose Size:</label>
+          <select id="size">
+            <option>A3</option>
+            <option>A4</option>
+            <option>A5</option>
+          </select>
+        </div>
+
+        <!-- ✅ Add to Cart + Buy Now Form -->
+        <form id="cartForm" enctype="multipart/form-data">
+          <input type="hidden" name="product_id" value="1">
+          <input type="hidden" name="title" value="Aesthetic Frame">
+          <input type="hidden" name="price" id="cart_price">
+          <input type="hidden" name="size" id="cart_size">
+          <input type="hidden" name="quantity" value="1">
+          <input type="hidden" name="image_path" value="{{ url_for('static', filename='images/f1.jpeg') }}">
+
+          <div class="btns">
+            <button type="submit" class="btn primary">🛒 Add to Cart</button>
+            <button type="button" id="buyNowBtn" class="btn secondary">⚡ Buy Now</button>
+          </div>
+
+          <!-- ✅ Stylish Upload Image Button -->
+          <div class="extra">
+            <label for="image" class="upload-label">📎 Upload Personalized Image</label>
+            <input type="file" name="image" id="image" accept="image/*">
+            <div id="fileName" class="file-name"></div>
+          </div>
+        </form>
+
+        <!-- ✅ Product Details -->
+        <div class="extra">
+          <h2>Product Details</h2>
+          <ul>
+            <li>Premium quality wooden frame with protective glass.</li>
+            <li>High-resolution photo printing for vibrant colors.</li>
+            <li>Available in 3 sizes: A3, A4, A5.</li>
+            <li>Perfect for gifting on birthdays, anniversaries, and special occasions.</li>
+            <li>Option to personalize with your own uploaded image.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sizeSelect = document.getElementById('size');
+    const priceDiv = document.getElementById('price');
+    const cartForm = document.getElementById('cartForm');
+    const cartPrice = document.getElementById('cart_price');
+    const cartSize = document.getElementById('cart_size');
+    const buyNowBtn = document.getElementById('buyNowBtn');
+    const imageInput = document.getElementById('image');
+    const fileNameDiv = document.getElementById('fileName');
+
+    const priceMap = { 'A3': 900, 'A4': 600, 'A5': 400 };
+
+    // default values
+    priceDiv.textContent = '₹' + priceMap[sizeSelect.value];
+    cartPrice.value = priceMap[sizeSelect.value];
+    cartSize.value = sizeSelect.value;
+
+    sizeSelect.addEventListener('change', () => {
+      priceDiv.textContent = '₹' + priceMap[sizeSelect.value];
+      cartPrice.value = priceMap[sizeSelect.value];
+      cartSize.value = sizeSelect.value;
+    });
+
+    // 📝 Show file name
+    imageInput.addEventListener('change', () => {
+      if (imageInput.files.length > 0) {
+        fileNameDiv.textContent = "Selected: " + imageInput.files[0].name;
+      } else {
+        fileNameDiv.textContent = "";
+      }
+    });
+
+    // ✅ Image Validation
+    function validateImageUpload() {
+      if (!imageInput.files || imageInput.files.length === 0) {
+        alert("⚠️ Please upload an image before proceeding.");
+        return false;
+      }
+
+      const file = imageInput.files[0];
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      const maxSize = 5 * 1024 * 1024; // 5 MB
+
+      if (!allowedTypes.includes(file.type)) {
+        alert("❌ Only JPG, JPEG, or PNG files are allowed.");
+        imageInput.value = "";
+        fileNameDiv.textContent = "";
+        return false;
+      }
+
+      if (file.size > maxSize) {
+        alert("⚠️ Image size should not exceed 5MB.");
+        imageInput.value = "";
+        fileNameDiv.textContent = "";
+        return false;
+      }
+
+      return true;
+    }
+
+    // ✅ Add to Cart
+    cartForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateImageUpload()) return;
+
+      cartSize.value = sizeSelect.value;
+      cartPrice.value = priceMap[sizeSelect.value];
+
+      const formData = new FormData(cartForm);
+      try {
+        const res = await fetch("/add_to_cart", { method: "POST", body: formData });
+        const data = await res.json();
+        alert(data.message);
+      } catch (err) {
+        alert("❌ Error adding to cart: " + err);
+      }
+    });
+
+    // ✅ Buy Now
+    buyNowBtn.addEventListener("click", async () => {
+      if (!validateImageUpload()) return;
+
+      cartSize.value = sizeSelect.value;
+      cartPrice.value = priceMap[sizeSelect.value];
+      const formData = new FormData(cartForm);
+
+      try {
+        const res = await fetch("/add_to_cart", { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.success) {
+          window.open("/cart", "_blank");
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        alert("❌ Error: " + err);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Track Order</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #f8f9fa; }
+    .card { border-radius: 10px; }
+    .status-line { margin-top: 20px; }
+    .status-step {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 25px;
+      margin-right: 10px;
+      font-weight: 600;
+    }
+    .done { background: #198754; color: white; }
+    .pending { background: #ffc107; color: #212529; }
+    .failed { background: #dc3545; color: white; }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <!-- Top Bar with Title + Back Button -->
+    <div class="top-bar">
+      <h2 class="mb-0">📦 Track Your Order</h2>
+      <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">← Back to Home</a>
+    </div>
+
+    <!-- Order ID Form -->
+    <form method="POST" class="mb-4 p-3 bg-white shadow-sm rounded">
+      <div class="input-group">
+        <input type="text" name="order_id" class="form-control" placeholder="Enter your Order ID" required>
+        <button class="btn btn-primary" type="submit">Track</button>
+      </div>
+    </form>
+
+    {% if error %}
+      <div class="alert alert-danger text-center">{{ error }}</div>
+    {% endif %}
+
+    {% if order %}
+      <div class="card shadow-sm">
+        <div class="card-header bg-white">
+          <h5 class="mb-0">Order Details</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Order ID:</strong> {{ order[0] }}</p>
+          <p><strong>Status:</strong> 
+            {% if order[1] == "Pending" %}
+              <span class="badge bg-secondary">Pending</span>
+            {% elif order[1] == "Packed" %}
+              <span class="badge bg-info text-dark">Packed</span>
+            {% elif order[1] == "Out for Delivery" %}
+              <span class="badge bg-warning text-dark">Out for Delivery</span>
+            {% elif order[1] == "Delivered" %}
+              <span class="badge bg-success">Delivered</span>
+            {% else %}
+              <span class="badge bg-danger">{{ order[1] }}</span>
+            {% endif %}
+          </p>
+          <p><strong>Amount:</strong> ₹{{ order[2] }}</p>
+          <p><strong>Order Date:</strong> {{ order[3] }}</p>
+          <p><strong>Expected Delivery:</strong> {{ delivery_date.strftime("%d-%m-%Y") }}</p>
+          <hr>
+          <h6>📍 Shipping Address</h6>
+          <p>
+            {{ order[4] }} {{ order[5] }}<br>
+            {{ order[6] }}, {{ order[7] }} - {{ order[8] }}
+          </p>
+
+          <!-- Status Line (visual indicator) -->
+          <div class="status-line">
+            <span class="status-step {% if order[1] in ['Pending','Packed','Out for Delivery','Delivered'] %}done{% endif %}">Order Placed</span>
+            <span class="status-step {% if order[1] in ['Packed','Out for Delivery','Delivered'] %}done{% else %}pending{% endif %}">Packed</span>
+            <span class="status-step {% if order[1] in ['Out for Delivery','Delivered'] %}done{% else %}pending{% endif %}">Out for Delivery</span>
+            <span class="status-step {% if order[1]=='Delivered' %}done{% else %}pending{% endif %}">Delivered</span>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>

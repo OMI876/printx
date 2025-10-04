@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRINTX Website</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap');
+    body {margin:0;font-family:'Poppins',sans-serif;display:flex;flex-direction:column;min-height:100vh;background:#f9f9f9;color:#333}
+    /* Navbar */
+    .navbar{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(90deg,#0f2027,#203a43,#2c5364);color:white;padding:12px 25px;box-shadow:0 2px 10px rgba(0,0,0,0.5);position:sticky;top:0;z-index:1000}
+    .left{display:flex;align-items:center;gap:15px;position:relative}
+    .logo{display:flex;align-items:center;gap:8px;font-size:22px;font-weight:600;color:#ffcc00;letter-spacing:1px}
+    .logo img{height:35px;width:auto}
+    .icon{font-size:26px;cursor:pointer;transition:.3s}
+    .icon:hover{color:#ffcc00}
+    .search-box{display:flex;align-items:center;background:white;border-radius:25px;padding:5px 15px;margin-left:20px;width:500px;position:relative}
+    .search-box input{border:none;outline:none;flex:1;padding:8px;border-radius:25px;font-size:15px}
+    .search-box button{background:transparent;border:none;cursor:pointer}
+    .search-box img{width:20px;height:20px}
+    .results-box {
+   position: absolute;
+   top: 45px;
+   left: 20px;
+   background: #fff;
+   border: 1px solid #ddd;
+   width: 500px;
+   max-height: 200px;
+   overflow-y: auto;
+   display: none;
+   z-index: 999;
+   border-radius: 8px;
+   color: #000;
+ }
+ .results-box div {
+   padding: 8px 12px;
+   cursor: pointer;
+   border-bottom: 1px solid #eee;
+   background: #fff;
+   color: #000;
+ }
+ .results-box div:hover {
+   background: #f0f0f0;
+ }
+    .right{display:flex;align-items:center;gap:20px}
+    .nav-link{color:white;text-decoration:none;font-size:16px;font-weight:500;transition:.3s}
+    .nav-link:hover{color:#ffcc00}
+    .btn{background:#ff6600;border:none;padding:8px 16px;border-radius:6px;color:white;cursor:pointer;font-weight:bold;font-size:16px;transition:.3s}
+    .btn:hover{background:#e65c00;transform:scale(1.05)}
+    /* Side Menu */
+    .side-menu{position:fixed;top:0;left:-300px;width:280px;height:100%;background:hsl(180,100%,98%);box-shadow:2px 0 10px rgba(0,0,0,0.2);transition:.3s;padding:20px;z-index:999;overflow-y:auto}
+    .side-menu.open{left:0}
+    .side-menu ul{list-style:none;padding:0;margin:0}
+    .side-menu li{background:#fff;margin:10px 0;padding:12px 15px;font-size:16px;font-weight:500;border-radius:8px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.1);transition:.3s}
+    .side-menu li:hover{background:#f0f8ff;transform:translateY(-2px)}
+    .side-menu .side-link{text-decoration:none;color:#000;display:block;width:100%;font-weight:500}
+    .side-menu .side-link:hover{background:#f0f8ff;border-radius:6px}
+    .submenu{display:flex;flex-direction:column;width:100%;margin-top:8px;overflow:hidden;max-height:0;opacity:0;transition:all .3s ease-in-out}
+    .submenu.show{max-height:500px;opacity:1}
+    .submenu li{font-size:14px;padding:10px;background:#f8f8f8;border-radius:6px;margin:5px 0;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+    .submenu li a{text-decoration:none;color:#000;font-weight:500;display:block}
+    .submenu li a:hover{color:#ff6600}
+    .account{background:#fff;margin-top:15px;padding:12px;border-radius:8px;font-weight:bold;box-shadow:0 2px 6px rgba(0,0,0,0.1);cursor:pointer;transition:.3s}
+    .account:hover{background:#ffeccc;transform:translateY(-2px)}
+    .close-btn{font-size:22px;font-weight:bold;cursor:pointer;margin-bottom:15px;display:inline-block}
+    .container{max-width:1200px;margin:auto;padding:20px;flex:1}
+    /* Banner */
+    .banner{display:flex;gap:20px;background:#f7f6d1;border-radius:10px;padding:20px;margin:20px 0;align-items:flex-start}
+    .banner-left{flex:2}
+    .banner-left img{width:17cm;height:10cm;border-radius:8px;object-fit:fill}
+    .banner-right{flex:1;background:#fbf9ef;border:1px solid #ddd;border-radius:10px;padding:20px}
+    .banner-right label{display:block;margin:8px 0 4px;font-size:14px}
+    .banner-right select,.banner-right input{width:90%;padding:10px;border:1px solid #ccc;border-radius:5px;margin-bottom:5px}
+    .price{font-weight:bold;font-size:18px;margin:15px 0}
+    .banner-right button{background:#00b894;color:#fff;padding:12px;border:none;width:100%;border-radius:6px;cursor:pointer;font-size:16px}
+    .promo{position:relative;text-align:center;background:url('/static/images/promobg.jpg') no-repeat center center/cover;border-radius:10px;padding:40px 20px 20px;margin:20px 0;color:#000}
+    .promo-logo{position:absolute;top:10px;left:10px;height:40px;width:auto}
+    /* Shop Deals Button */
+    .shop-btn{background:#ffcc00;color:#000;padding:12px 20px;border:none;border-radius:6px;font-size:16px;font-weight:600;cursor:pointer;transition:.3s}
+    .shop-btn:hover{background:#e6b800;transform:scale(1.05)}
+    /* Cards */
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-bottom:30px}
+    .card{background:#ffe4e4;border-radius:10px;padding:15px;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,0.1);transition:transform .2s}
+    .card:hover{transform:translateY(-5px)}
+    .card a{display:block;text-decoration:none;color:inherit}
+    .card img{max-width:100%;border-radius:6px;margin-bottom:10px}
+    /* Footer */
+    footer{background:#000;color:#fff;text-align:center;padding:14px;font-size:14px;margin-top:auto}
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="left">
+      <span class="icon" onclick="toggleMenu()">&#9776;</span>
+      <div class="logo">
+        <img src="{{ url_for('static', filename='images/logo1.png') }}" alt="Logo"> PRINTX
+      </div>
+      <div class="search-box">
+        <input type="text" id="searchBar" placeholder="Search products..." autocomplete="off">
+        <button type="button"><img src="{{ url_for('static', filename='images/search.png') }}" alt="Search"></button>
+        <div id="searchResults" class="results-box"></div>
+      </div>
+    </div>
+    <div class="right">
+      <a href="{{ url_for('about') }}" class="nav-link">About Us</a>
+      <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
+      <a href="{{ url_for('cart_backend.cart') }}" class="nav-link"><span class="icon">&#128722;</span></a>
+      {% if username %}
+        <span class="nav-link">Hello, {{ username }} 👋</span>
+        <a href="{{ url_for('logout') }}"><button class="btn">Logout</button></a>
+      {% else %}
+        <a href="{{ url_for('login') }}"><button class="btn">Login / Sign Up</button></a>
+      {% endif %}
+    </div>
+  </header>
+
+<!-- Side Menu -->
+<div class="side-menu" id="sideMenu">
+  <span class="close-btn" onclick="toggleMenu()">&times;</span>
+  <ul>
+    <li><a href="{{ url_for('banner') }}" class="side-link"> BANNERS & STICKERS</a></li>
+    <li>
+      <div onclick="toggleSubmenu(this)" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+        <span>COLLECTIONS</span>
+        <span class="arrow">▶</span>
+      </div>
+      <ul class="submenu">
+        <li><a href="{{ url_for('photoframe') }}">PHOTOFRAMES</a></li>
+        <li><a href="{{ url_for('sticker') }}">VINYL STICKER</a></li>
+        <li><a href="{{ url_for('tshirt') }}">T-SHIRTS</a></li>
+      </ul>
+    </li>
+    <li><a href="{{ url_for('cart_backend.track_order') }}" class="side-link">📦 TRACK ORDER</a></li>
+  </ul>
+  <div class="account" onclick="window.location.href='{{ url_for('profile.profile_page') }}'">👤 ACCOUNT</div>
+</div>
+
+<!-- Overlay for closing side menu -->
+<div id="overlay" onclick="toggleMenu()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:998;"></div>
+
+<!-- Main Content -->
+<div class="container">
+  <div class="banner">
+    <div class="banner-left">
+      <img src="{{ url_for('static', filename='images/homef1.jpeg') }}" alt="Back to School">
+      <h2>Get Photo frames on flat deal, Hurry Up!</h2>
+      <p>Order above 400rs and Get Free Home Delivery*</p>
+      <button class="shop-btn" onclick="window.location.href='{{ url_for('photoframe') }}'">Shop Deals</button>
+    </div>
+    <div class="banner-right">
+      <h3>Choose your photo frame size</h3>
+      <form action="{{ url_for('cart_backend.add_to_cart') }}" method="POST" enctype="multipart/form-data">
+        <label>Standard Size:</label>
+        <select id="size" name="size" onchange="calculatePrice()">
+          <option value="A4">8.27 x 11.7 inch (A4)</option>
+          <option value="A3">11.7 x 16.5 inch (A3)</option>
+          <option value="A5">5.83 x 8.27 inch (A5)</option>
+        </select>
+        <label>Custom Size:</label>
+        <input type="number" id="width" placeholder="Width (in)" oninput="calculatePrice()">
+        <input type="number" id="height" placeholder="Height (in)" oninput="calculatePrice()">
+        <label>Quantity:</label>
+        <input type="number" id="quantity" name="quantity" value="1" min="1" oninput="calculatePrice()">
+
+        <label>Photo Frame Border Colour:</label>
+        <input type="color" id="borderColor" name="border_color" value="#000000">
+
+        <label>Border Width (inches):</label>
+        <input type="number" id="borderWidth" name="border_width" min="0" max="10" value="1">
+
+        <label>Upload Your Image:</label>
+        <input type="file" id="imageUpload" name="image" accept="image/*">
+
+        <!-- Hidden fields -->
+        <input type="hidden" name="product_id" value="101">
+        <input type="hidden" name="title" value="Photo Frame">
+        <input type="hidden" name="price" id="priceInput" value="600">
+
+        <p class="price" id="totalPrice">Price Total: ₹0 </p>
+        <button type="submit">Buy now </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="promo">
+    <img src="{{ url_for('static', filename='images/logo1.png') }}" alt="Promo Logo" class="promo-logo">
+    <h2>Make And Print Your Custom Flex Banners / Vinyl Stickers Online With PRINTX</h2>
+    <p>Excellent ★★★★☆  2,565  customber reviews on Trustpilot</p>
+  </div>
+
+  <h2>What’s New and Trendy</h2>
+<div class="cards">
+  <div class="card">
+    <a href="{{ url_for('tshirt') }}">
+      <img src="{{ url_for('static', filename='images/tshirt.jpeg') }}" alt="T-Shirts & Hoodies">
+      <h4>Printed T-Shirts & Hoodies/Sweetshirt</h4>
+      <p>Trendy T-shirts and cozy hoodies/Sweetshirt customized your way.</p>
+    </a>
+  </div>
+  <div class="card">
+    <a href="{{ url_for('sticker') }}">
+      <img src="{{ url_for('static', filename='images/sticker.jpeg') }}" alt="Vinyl Stickers">
+      <h4>Vinyl Stickers</h4>
+      <p>All types of stickers for branding & decoration.</p>
+    </a>
+  </div>
+  <div class="card">
+    <a href="{{ url_for('photoframe') }}">
+      <img src="{{ url_for('static', filename='images/photoframe.jpg') }}" alt="Photo Frames">
+      <h4>Photo Frames</h4>
+      <p>Beautiful photo frames to cherish your memories.</p>
+    </a>
+  </div>
+</div>
+</div>
+
+<!-- ✅ Footer -->
+<footer>
+  © 2025 PRINTX Website. All rights reserved.
+</footer>
+
+<script>
+  function toggleMenu(){
+    const menu=document.getElementById("sideMenu");
+    const overlay=document.getElementById("overlay");
+    menu.classList.toggle("open");
+    overlay.style.display = menu.classList.contains("open") ? "block" : "none";
+  }
+  function toggleSubmenu(item){
+    const submenu=item.parentElement.querySelector(".submenu");
+    const arrow=item.querySelector(".arrow");
+    submenu.classList.toggle("show");
+    arrow.textContent=submenu.classList.contains("show")?"▼":"▶";
+  }
+  function calculatePrice(){
+    const size=document.getElementById("size").value;
+    const quantity=parseInt(document.getElementById("quantity").value)||1;
+    const width=parseFloat(document.getElementById("width").value)||0;
+    const height=parseFloat(document.getElementById("height").value)||0;
+    let pricePerItem=0;
+    if(size==="A4") pricePerItem=600;
+    else if(size==="A3") pricePerItem=900;
+    else if(size==="A5") pricePerItem=400;
+    if(width>0 && height>0) pricePerItem=width*height*13;
+    const total=pricePerItem*quantity;
+    document.getElementById("totalPrice").textContent=`Price Total: ₹${total.toFixed(2)}`;
+    document.getElementById("priceInput").value=pricePerItem;
+  }
+  calculatePrice();
+
+  // ✅ Search Functionality
+  document.getElementById("searchBar").addEventListener("input", function() {
+    let query=this.value;
+    let resultsBox=document.getElementById("searchResults");
+    if(query.length>1){
+      fetch(`/search?q=${query}`)
+        .then(res=>res.json())
+        .then(data=>{
+          resultsBox.innerHTML="";
+          if(data.length>0){
+            data.forEach(item=>{
+              let div=document.createElement("div");
+              div.textContent=item.name;
+              div.onclick=()=>{window.location.href=item.page_link;};
+              resultsBox.appendChild(div);
+            });
+            resultsBox.style.display="block";
+          } else {resultsBox.style.display="none";}
+        });
+    } else {resultsBox.style.display="none";}
+  });
+</script>
+</body>
+</html>

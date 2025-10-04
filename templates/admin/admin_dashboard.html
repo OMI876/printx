@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Dashboard - PrintX</title>
+  <style>
+    body{margin:0;font-family:Segoe UI, Roboto, sans-serif;background:#f6f7fb;color:#2f3a4a}
+    .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    .sidebar{background:#fff;border-right:1px solid #e3e9f2;position:sticky;top:0;height:100vh;
+             display:flex;flex-direction:column;padding:18px 14px;gap:18px}
+    .brand{font-weight:bold;font-size:20px;text-align:center}
+    .nav{display:flex;flex-direction:column;gap:6px}
+    .nav a{padding:10px 14px;text-decoration:none;color:#2f3a4a;border-radius:8px;transition:.2s}
+    .nav a:hover{background:#f1f4f9}
+    .nav .active{background:#e3e9f2}
+    .spacer{flex:1}
+    .logout{color:#d77a7a;font-weight:bold}
+    .main{padding:22px}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .card{background:#fff;border:1px solid #e3e9f2;border-radius:12px;padding:18px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+    .card h3{margin:0 0 8px;font-size:14px;color:#6c7a89}
+    .card .value{font-size:28px;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin-top:20px;background:#fff;border-radius:8px;overflow:hidden}
+    th,td{padding:10px 14px;border-bottom:1px solid #e3e9f2;text-align:left}
+    th{background:#f1f4f9;color:#6c7a89;font-size:12px;text-transform:uppercase}
+    .badge{padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600}
+    .pending{background:#fff3cd;color:#856404}
+    .delivered{background:#d4edda;color:#155724}
+    .returned{background:#f8d7da;color:#721c24}
+    .exchanged{background:#cce5ff;color:#004085}
+    .cancelled{background:#f5c6cb;color:#721c24}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">PrintX Admin</div>
+      <nav class="nav">
+        <a href="/admin" class="active">Dashboard</a>
+        <a href="/admin/users">Users</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/returns">Returns/Exchange</a>
+        <a href="/admin/cancelled">Cancelled Orders</a> <!-- ✅ New menu -->
+        <a href="/admin/messages">Messages</a>
+      </nav>
+      <div class="spacer"></div>
+      <nav class="nav">
+        <a href="/logout" class="logout">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+      <h1>Dashboard</h1>
+
+      <!-- KPI Cards -->
+      <section class="cards">
+        <div class="card">
+          <h3>Total Users</h3>
+          <div class="value">{{ total_customers }}</div>
+        </div>
+        <div class="card">
+          <h3>Total Orders</h3>
+          <div class="value">{{ total_orders }}</div>
+        </div>
+        <div class="card">
+          <h3>Total Revenue</h3>
+          <div class="value">₹{{ total_revenue }}</div>
+        </div>
+      </section>
+
+      <!-- Latest Orders -->
+      <section>
+        <h2>Latest Orders</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>User ID</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in latest_orders %}
+            <tr>
+              <td>{{ order.order_id }}</td>
+              <td>{{ order.user_id }}</td>
+              <td>₹{{ order.amount }}</td>
+              <td>
+                {% if order.order_status == "Pending" %}
+                  <span class="badge pending">Pending</span>
+                {% elif order.order_status == "Delivered" %}
+                  <span class="badge delivered">Delivered</span>
+                {% elif order.order_status == "Returned" %}
+                  <span class="badge returned">Returned</span>
+                {% elif order.order_status == "Exchanged" %}
+                  <span class="badge exchanged">Exchanged</span>
+                {% elif order.order_status == "Cancelled" %}
+                  <span class="badge cancelled">Cancelled</span>
+                {% else %}
+                  <span class="badge">{{ order.order_status }}</span>
+                {% endif %}
+              </td>
+              <td>{{ order.created_at }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5" class="text-center">No recent orders</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

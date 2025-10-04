@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin - Returns & Exchange</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Segoe UI, Roboto, sans-serif;
+      background: #f6f7fb;
+      color: #2f3a4a;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+    .sidebar {
+      background: #fff;
+      border-right: 1px solid #e3e9f2;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 18px 14px;
+      gap: 18px;
+    }
+    .brand {
+      font-weight: bold;
+      font-size: 20px;
+      text-align: center;
+    }
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .nav a {
+      padding: 10px 14px;
+      text-decoration: none;
+      color: #2f3a4a;
+      border-radius: 8px;
+      transition: .2s;
+    }
+    .nav a:hover { background: #f1f4f9; }
+    .nav .active { background: #e3e9f2; }
+    .spacer { flex: 1; }
+    .logout { color: #d77a7a; font-weight: bold; }
+    .main { padding: 22px; }
+    h1 { margin-bottom: 20px; }
+
+    /* ✅ Table with full borders */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #fff;
+      border: 1px solid #cfd8e3;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px 14px;
+      border: 1px solid #cfd8e3;
+      text-align: left;
+      font-size: 14px;
+      vertical-align: top;
+    }
+    th {
+      background: #f1f4f9;
+      color: #6c7a89;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    /* ✅ Status labels */
+    .status {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .pending { background: #fff3cd; color: #856404; }
+    .approved { background: #d4edda; color: #155724; }
+    .rejected { background: #f8d7da; color: #721c24; }
+    .returned { background: #d1ecf1; color: #0c5460; }
+    .exchanged { background: #e2d9f3; color: #4b0082; }
+
+    img.preview {
+      max-width: 80px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">PrintX Admin</div>
+      <nav class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/users">Users</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/returns" class="active">Returns/Exchange</a>
+        <a href="/admin/cancelled">Cancelled Orders</a> 
+        <a href="/admin/messages">Messages</a>
+      </nav>
+      <div class="spacer"></div>
+      <nav class="nav">
+        <a href="/logout" class="logout">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <h1>Returns & Exchange Requests</h1>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Request ID</th>
+            <th>Order ID</th>
+            <th>User Email</th>
+            <th>Request Type</th>
+            <th>Reason</th>
+            <th>UPI ID</th>
+            <th>Details</th>
+            <th>Image</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for req in return_requests %}
+          <tr>
+            <td>{{ req.id }}</td>
+            <td>{{ req.order_id }}</td>
+            <td>{{ req.email }}</td>
+            <td>{{ req.request_type }}</td>
+            <td>{{ req.reason }}</td>
+            <td>{{ req.upi or '-' }}</td>
+            <td>{{ req.details or '-' }}</td>
+            <td>
+              {% if req.image %}
+              <a href="{{ url_for('static', filename='uploads/' ~ req.image) }}" target="_blank">
+                <img src="{{ url_for('static', filename='uploads/' ~ req.image) }}" class="preview" alt="img">
+              </a>
+              {% else %}-{% endif %}
+            </td>
+            <td>
+              <span class="status
+                {% if req.status=='Pending' %}pending
+                {% elif req.status=='Approved' %}approved
+                {% elif req.status=='Rejected' %}rejected
+                {% elif req.status=='Returned' %}returned
+                {% elif req.status=='Exchanged' %}exchanged
+                {% else %}pending{% endif %}">
+                {{ req.status }}
+              </span>
+            </td>
+            <td>{{ req.created_at }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="10">No return/exchange requests yet</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </main>
+  </div>
+</body>
+</html>

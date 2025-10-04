@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: url("pexels-photo-7130555.jpeg") no-repeat center center fixed;
+      background-size: cover;
+      position: relative;
+    }
+
+    /* BACK BUTTON */
+    .back-link {
+      position: fixed;
+      top: 20px;
+      left: 30px;
+      color: #000000;
+      background: rgba(255, 209, 236, 0.4);
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 14px;
+      z-index: 999;
+      transition: 0.3s ease;
+    }
+
+    .back-link:hover {
+      background: rgba(0, 0, 0, 0.6);
+      color: #ddd;
+      text-decoration: underline;
+    }
+
+    .container {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 20px;
+      max-width: 350px;
+      width: 100%;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      text-align: center;
+    }
+
+    .container img {
+      width: 60px;
+      margin-bottom: 15px;
+    }
+
+    .container h2 {
+      margin-bottom: 5px;
+      color: #4a2f2f;
+    }
+
+    /* ✅ Flash messages */
+    .flash {
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    .flash.success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .flash.danger  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+    .container input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #d9a48f;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .container input:focus {
+      border-color: #b77c5c;
+      box-shadow: 0 0 5px rgba(183, 124, 92, 0.4);
+    }
+
+    .password-field {
+      position: relative;
+    }
+
+    .password-field input {
+      padding-right: 40px;
+    }
+
+    .password-field i {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #888;
+    }
+
+    .options {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin: 10px 0 20px;
+      color: #555;
+    }
+
+    .options a {
+      color: #b77c5c;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .options a:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #d9a48f;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #b77c5c;
+    }
+
+    .signup {
+      font-size: 14px;
+      margin-top: 15px;
+    }
+
+    .signup a {
+      color: #b77c5c;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .signup a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .back-link {
+        top: 10px;
+        left: 15px;
+        font-size: 12px;
+        padding: 5px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BACK BUTTON -->
+  <a href="{{ url_for('home') }}" class="back-link">&lt; BACK</a>
+
+  <div class="container">
+    <img src="{{ url_for('static', filename='images/logo1.png') }}" alt="icon">
+    <h2>Welcome back</h2>
+
+    <!-- ✅ Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/login">
+      <input type="email" name="email" placeholder="Email address" required>
+      <div class="password-field">
+        <input type="password" name="password" id="password" placeholder="Password" required>
+        <i class="fa-solid fa-eye" id="togglePassword"></i>
+      </div>
+
+      <div class="options">
+        <label><input type="checkbox"> Remember me</label>
+        <a href="{{ url_for('forgot_bp.forgot') }}">Forgot password?</a>
+      </div>
+
+      <button type="submit">Sign In</button>
+    </form>
+
+    <div class="signup">
+      <p>Don't have an account? <a href="{{ url_for('signup') }}">signup</a></p>
+    </div>
+  </div>
+
+  <script>
+    // 👁 Toggle Password Visibility
+    const togglePassword = document.querySelector("#togglePassword");
+    const password = document.querySelector("#password");
+    togglePassword.addEventListener("click", () => {
+      const type = password.getAttribute("type") === "password" ? "text" : "password";
+      password.setAttribute("type", type);
+      togglePassword.classList.toggle("fa-eye-slash");
+    });
+
+    // ⏳ Auto-hide flash after 3 seconds
+    setTimeout(() => {
+      document.querySelectorAll('.flash').forEach(el => el.style.display = 'none');
+    }, 3000);
+  </script>
+</body>
+</html>

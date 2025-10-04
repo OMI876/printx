@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Signs</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    /* Top Banner Section */
+    .banner {
+      display: flex;
+      gap: 20px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .banner-left {
+      flex: 2;
+    }
+    .banner-left img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+    .banner-left h2 {
+      font-size: 28px;
+      margin: 15px 0 5px;
+    }
+    .banner-left p {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .banner-left button {
+      background: #ffcc00;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* Right Form Box */
+    .banner-right {
+      flex: 1;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .banner-right h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .banner-right label {
+      display: block;
+      margin: 8px 0 4px;
+      font-size: 14px;
+    }
+    .banner-right select,
+    .banner-right input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .price {
+      font-weight: bold;
+      font-size: 18px;
+      margin: 15px 0;
+    }
+    .banner-right button {
+      background: #00b894;
+      color: #fff;
+      padding: 12px;
+      border: none;
+      width: 100%;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    /* Promo Section */
+    .promo {
+      text-align: center;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    .promo h2 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+    .promo p {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    /* Trending Cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .card img {
+      max-width: 100%;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .card h4 {
+      margin: 10px 0 5px;
+    }
+    .card p {
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Banner Section -->
+    <div class="banner">
+      <div class="banner-left">
+        <img src="https://via.placeholder.com/600x250.png?text=Back+to+School+Banner" alt="Back to School">
+        <h2>Get Set For The New Academic Year</h2>
+        <p>With 15% Off Select Products</p>
+        <button>Shop Deals</button>
+      </div>
+
+      <div class="banner-right">
+        <h3>Acrylic Photo Prints</h3>
+        <label for="size">Standard Size:</label>
+        <select id="size">
+          <option>12 x 12 inch</option>
+          <option>16 x 20 inch</option>
+          <option>20 x 30 inch</option>
+        </select>
+        
+        <label>Custom Size:</label>
+        <input type="text" placeholder="Width (in)">
+        <input type="text" placeholder="Height (in)">
+        
+        <label>Quantity:</label>
+        <input type="number" value="1" min="1">
+        
+        <p class="price">Price Total: $67.87</p>
+        <button>Get Started</button>
+      </div>
+    </div>
+
+    <!-- Promo Section -->
+    <div class="promo">
+      <h2>Make And Print Your Custom Sign Online With SquareSigns</h2>
+      <p>Excellent ★★★★☆  2,565 reviews on Trustpilot</p>
+    </div>
+
+    <!-- Trending Cards -->
+    <h2>What’s New and Trendy</h2>
+    <div class="cards">
+      <div class="card">
+        <img src="https://via.placeholder.com/250x200.png?text=Flag" alt="Flag">
+        <h4>Custom Flags</h4>
+        <p>High-quality fabric flags for your events.</p>
+      </div>
+      <div class="card">
+        <img src="https://via.placeholder.com/250x200.png?text=Poster" alt="Poster">
+        <h4>Promo Posters</h4>
+        <p>Eye-catching posters for promotions.</p>
+      </div>
+      <div class="card">
+        <img src="https://via.placeholder.com/250x200.png?text=Card" alt="Card">
+        <h4>Greeting Cards</h4>
+        <p>Personalized cards for all occasions.</p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
