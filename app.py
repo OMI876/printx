@@ -1,31 +1,37 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
 import MySQLdb.cursors
+from dotenv import load_dotenv
 
-# Import blueprints
-from cart_backend import cart_backend, init_mysql as init_cart_mysql
-from profile_backend import profile_bp, init_mysql as init_profile_mysql
-from admin_backend import admin_bp, init_mysql as init_admin_mysql
-from forgot_backend import forgot_bp
+# 🔸 Load environment variables
+load_dotenv()
 
 # ------------------ FLASK APP ------------------
 app = Flask(__name__)
-app.secret_key = "your_secret_key"
+app.secret_key = os.getenv("SECRET_KEY", "your_secret_key")
 
-# ✅ MySQL Config
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'chandu'
-app.config['MYSQL_DB'] = 'printx'
+# ✅ MySQL Config (Railway from .env)
+app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
+app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
+app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
+app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
+app.config['MYSQL_PORT'] = int(os.getenv('MYSQL_PORT', 3306))
 
 # ✅ Init MySQL + Bcrypt
 mysql = MySQL(app)
 bcrypt = Bcrypt(app)
 
+# ------------------ BLUEPRINTS IMPORT ------------------
+from cart_backend import cart_backend, init_mysql as init_cart_mysql
+from profile_backend import profile_bp, init_mysql as init_profile_mysql
+from admin_backend import admin_bp, init_mysql as init_admin_mysql
+from forgot_backend import forgot_bp
+
 # ✅ Pass MySQL + Bcrypt instance to blueprints
 init_cart_mysql(mysql)
-init_profile_mysql(mysql, bcrypt)   # 👈 profile backend needs both mysql + bcrypt
+init_profile_mysql(mysql, bcrypt)
 init_admin_mysql(mysql)
 
 # ✅ Register Blueprints
@@ -38,7 +44,17 @@ app.register_blueprint(forgot_bp)
 
 @app.route("/test")
 def test():
-    return "ok"
+    return "✅ App is running!"
+
+@app.route("/testdb")
+def testdb():
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("SHOW TABLES")
+        tables = cur.fetchall()
+        return f"✅ DB Connected! Tables: {tables}"
+    except Exception as e:
+        return f"❌ DB Error: {str(e)}"
 
 @app.route('/')
 def home():
@@ -88,7 +104,7 @@ def sticker():
 def tshirt():
     return render_template('tshirt.html')
 
-# ---------- PRODUCT DETAIL ROUTE (static productX.html) ----------
+# ---------- PRODUCT DETAIL ROUTE ----------
 @app.route('/product<int:product_id>')
 def product_page(product_id):
     try:
@@ -106,7 +122,7 @@ def search():
     cursor.close()
     return jsonify(results)
 
-# ---------- AUTH ----------
+# ---------- SIGNUP ----------
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -128,7 +144,6 @@ def signup():
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
         cur = mysql.connection.cursor()
-        # ✅ Default role = customer
         cur.execute(
             "INSERT INTO users (name, email, password, role) VALUES (%s, %s, %s, %s)", 
             (name, email, hashed_password, "customer")
@@ -141,6 +156,7 @@ def signup():
 
     return render_template('signup.html')
 
+# ---------- LOGIN ----------
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -166,6 +182,7 @@ def login():
 
     return render_template("login.html")
 
+# ---------- LOGOUT ----------
 @app.route('/logout')
 def logout():
     session.pop('username', None)
@@ -175,4 +192,5 @@ def logout():
 
 # ------------------ MAIN ------------------
 if __name__ == '__main__':
-    app.run(debug=True)
+    # For Render, use 0.0.0.0 + port
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)), debug=True)
