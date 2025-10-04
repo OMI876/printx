@@ -2,21 +2,27 @@ from flask import Blueprint, render_template, request, jsonify
 import MySQLdb.cursors, random, smtplib
 from email.mime.text import MIMEText
 from extensions import mysql, bcrypt
-from config import EMAIL_ADDRESS, EMAIL_PASSWORD, SMTP_SERVER, SMTP_PORT, SENDER_EMAIL
+import os
+
+# 🔸 Load SMTP / SendGrid credentials from environment (.env or Render)
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "apikey")       # SendGrid username is always 'apikey'
+EMAIL_PASSWORD = os.getenv("SENDGRID_API_KEY")            # Your SendGrid API Key
+SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.sendgrid.net")
+SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 
 forgot_bp = Blueprint('forgot_bp', __name__)
 
-# ✅ Forgot Password Page
+# ✅ Forgot Password Page (GET)
 @forgot_bp.route('/forgot', methods=['GET'])
 def forgot():
-    return render_template('reset_password.html')  # tera frontend page
+    return render_template('reset_password.html')  # Your frontend reset page
 
-# ✅ Function to send OTP via email
+# ✅ Function to send OTP via SMTP (SendGrid)
 def send_otp(email, otp):
     subject = "Password Reset OTP"
     body = f"Your OTP is: {otp}"
 
-    # ✅ Proper MIME message
     msg = MIMEText(body, "plain")
     msg["Subject"] = subject
     msg["From"] = SENDER_EMAIL
@@ -30,31 +36,34 @@ def send_otp(email, otp):
 # ✅ Step 1: Send OTP
 @forgot_bp.route('/forgot_password', methods=['POST'])
 def forgot_password():
-    data = request.json
-    email = data.get('email')
-
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
-    account = cursor.fetchone()
-
-    if not account:
-        return jsonify({"success": False, "message": "Email not found!"})
-
-    otp = str(random.randint(100000, 999999))
-    cursor.execute("INSERT INTO password_resets (email, otp) VALUES (%s,%s)", (email, otp))
-    mysql.connection.commit()
-
     try:
-        send_otp(email, otp)
-    except Exception as e:
-        return jsonify({"success": False, "message": f"Failed to send email: {str(e)}"})
+        data = request.get_json()  # parse JSON from frontend
+        email = data.get('email')
 
-    return jsonify({"success": True, "message": "OTP sent to your email."})
+        # Check if email exists in users table
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
+        account = cursor.fetchone()
+
+        if not account:
+            return jsonify({"success": False, "message": "❌ Email not found!"})
+
+        # Generate OTP & store in DB
+        otp = str(random.randint(100000, 999999))
+        cursor.execute("INSERT INTO password_resets (email, otp) VALUES (%s,%s)", (email, otp))
+        mysql.connection.commit()
+
+        # Send OTP Email
+        send_otp(email, otp)
+        return jsonify({"success": True, "message": "✅ OTP sent to your email."})
+
+    except Exception as e:
+        return jsonify({"success": False, "message": f"❌ Failed to send email: {str(e)}"})
 
 # ✅ Step 2: Verify OTP
 @forgot_bp.route('/verify_otp', methods=['POST'])
 def verify_otp():
-    data = request.json
+    data = request.get_json()
     email = data.get('email')
     otp = data.get('otp')
 
@@ -67,14 +76,14 @@ def verify_otp():
     record = cursor.fetchone()
 
     if record:
-        return jsonify({"success": True, "message": "OTP verified"})
+        return jsonify({"success": True, "message": "✅ OTP verified"})
     else:
-        return jsonify({"success": False, "message": "Invalid OTP"})
+        return jsonify({"success": False, "message": "❌ Invalid OTP"})
 
 # ✅ Step 3: Reset Password
 @forgot_bp.route('/reset_password', methods=['POST'])
 def reset_password():
-    data = request.json
+    data = request.get_json()
     email = data.get('email')
     new_password = data.get('new_password')
 
@@ -83,4 +92,4 @@ def reset_password():
     cursor.execute("UPDATE users SET password=%s WHERE email=%s", (hashed_pw, email))
     mysql.connection.commit()
 
-    return jsonify({"success": True, "message": "Password reset successful"})
+    return jsonify({"success": True, "message": "✅ Password reset successful"})
