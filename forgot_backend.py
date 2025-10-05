@@ -4,12 +4,12 @@ from email.mime.text import MIMEText
 from extensions import mysql, bcrypt
 import os
 
-# 🔸 Load SMTP / SendGrid credentials from environment (.env or Render)
-EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "apikey")  # SendGrid username is always 'apikey'
-EMAIL_PASSWORD = os.getenv("SENDGRID_API_KEY")       # Your SendGrid API Key
-SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.sendgrid.net")
+# 🔸 Load Gmail SMTP credentials from environment (.env / Render)
+SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
-SENDER_EMAIL = os.getenv("SENDER_EMAIL")
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")        # your Gmail address
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")      # your App Password (16 chars)
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")          # usually same as EMAIL_ADDRESS
 
 # ✅ Blueprint Init
 forgot_bp = Blueprint('forgot_bp', __name__)
@@ -20,7 +20,7 @@ def forgot():
     return render_template('reset_password.html')  # Your frontend reset page
 
 
-# ✅ Function to send OTP via SMTP (SendGrid)
+# ✅ Function to send OTP via Gmail SMTP
 def send_otp(email, otp):
     subject = "Password Reset OTP"
     body = f"Your OTP for resetting your password is: {otp}"
@@ -31,20 +31,20 @@ def send_otp(email, otp):
     msg["To"] = email
 
     try:
-        print("🚀 Connecting to SMTP...")
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
-            print("🔐 Starting TLS...")
-            server.starttls()
-            print("🧠 Logging in to SendGrid...")
-            server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-            print(f"✉️ Sending OTP to {email} ...")
-            server.sendmail(SENDER_EMAIL, [email], msg.as_string())
+        print("🚀 Connecting to Gmail SMTP...")
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10)
+        server.starttls()
+        print("🔐 Logging in to Gmail SMTP...")
+        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        print(f"✉️ Sending OTP to {email} ...")
+        server.sendmail(SENDER_EMAIL, [email], msg.as_string())
+        server.quit()
         print("✅ OTP Email sent successfully!")
         return True
 
     except Exception as e:
         # ❌ Don't crash Gunicorn worker — just log and return False
-        print(f"❌ SMTP error while sending OTP: {e}")
+        print(f"❌ Gmail SMTP error while sending OTP: {e}")
         return False
 
 
