@@ -12,7 +12,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "your_secret_key")
 
-# ✅ MySQL Config (Railway from .env)
+# ✅ MySQL Config (Railway / Render from .env)
 app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
 app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
 app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
@@ -126,13 +126,17 @@ def search():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        password = request.form['password']
-        confirm_password = request.form.get('confirmPassword')
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        # ✅ Handle both `confirmPassword` and `confirm_password`
+        confirm_password = request.form.get('confirmPassword') or request.form.get('confirm_password')
+
+        # 🧠 Debug print (optional)
+        # print(f"Password: {password} | Confirm: {confirm_password}")
 
         # ✅ Backend validations
-        if len(password) < 8:
+        if not password or len(password) < 8:
             flash("❌ Password must be at least 8 characters!", "danger")
             return redirect(url_for('signup'))
 

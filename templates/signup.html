@@ -77,12 +77,15 @@
     <form method="POST" action="/signup" onsubmit="return validateForm()">
       <input type="text" name="name" placeholder="Full Name" required>
       <input type="email" name="email" placeholder="Email address" required>
+
       <div class="password-field">
         <input type="password" name="password" id="password" placeholder="Password (min 8 chars)" minlength="8" required>
         <i class="fa-solid fa-eye" id="togglePassword"></i>
       </div>
+
+      <!-- ✅ FIXED: Added name="confirmPassword" -->
       <div class="password-field">
-        <input type="password" id="confirmPassword" placeholder="Confirm Password" minlength="8" required>
+        <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" minlength="8" required>
         <i class="fa-solid fa-eye" id="toggleConfirmPassword"></i>
       </div>
 
