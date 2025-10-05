@@ -18,6 +18,7 @@ forgot_bp = Blueprint('forgot_bp', __name__)
 def forgot():
     return render_template('reset_password.html')  # Your frontend reset page
 
+
 # ✅ Function to send OTP via SMTP (SendGrid)
 def send_otp(email, otp):
     subject = "Password Reset OTP"
@@ -30,7 +31,7 @@ def send_otp(email, otp):
 
     try:
         print("🚀 Connecting to SMTP...")
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10) as server:  # ⏱ timeout fix
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
             print("🔐 Starting TLS...")
             server.starttls()
             print("🧠 Logging in to SendGrid...")
@@ -38,9 +39,13 @@ def send_otp(email, otp):
             print(f"✉️ Sending OTP to {email} ...")
             server.sendmail(SENDER_EMAIL, [email], msg.as_string())
         print("✅ OTP Email sent successfully!")
+        return True
+
     except Exception as e:
-        print(f"❌ SMTP error while sending OTP: {str(e)}")
-        raise  # Let the upper route catch it and return proper error
+        # ❌ Don't crash Gunicorn worker — just log and return False
+        print(f"❌ SMTP error while sending OTP: {e}")
+        return False
+
 
 # ✅ Step 1: Send OTP
 @forgot_bp.route('/forgot_password', methods=['POST'])
@@ -62,16 +67,19 @@ def forgot_password():
 
         # Generate & store OTP
         otp = str(random.randint(100000, 999999))
-        cursor.execute("INSERT INTO password_resets (email, otp) VALUES (%s,%s)", (email, otp))
+        cursor.execute("INSERT INTO password_resets (email, otp) VALUES (%s, %s)", (email, otp))
         mysql.connection.commit()
 
         # Send OTP Email
-        send_otp(email, otp)
+        if not send_otp(email, otp):
+            return jsonify({"success": False, "message": "❌ Failed to send OTP. Check SMTP settings."})
 
         return jsonify({"success": True, "message": "✅ OTP sent to your email."})
 
     except Exception as e:
-        return jsonify({"success": False, "message": f"❌ Failed to send email: {str(e)}"})
+        print(f"❌ Error in forgot_password: {e}")
+        return jsonify({"success": False, "message": "❌ Server error while processing request."})
+
 
 # ✅ Step 2: Verify OTP
 @forgot_bp.route('/verify_otp', methods=['POST'])
@@ -91,7 +99,8 @@ def verify_otp():
     if record:
         return jsonify({"success": True, "message": "✅ OTP verified"})
     else:
-        return jsonify({"success": False, "message": "❌ Invalid OTP"})
+        return jsonify({"success": False, "message": "❌ Invalid or expired OTP"})
+
 
 # ✅ Step 3: Reset Password
 @forgot_bp.route('/reset_password', methods=['POST'])
