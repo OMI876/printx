@@ -11,6 +11,7 @@ SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.sendgrid.net")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 
+# ✅ Blueprint Init
 forgot_bp = Blueprint('forgot_bp', __name__)
 
 # ✅ Forgot Password Page (GET)
@@ -22,7 +23,7 @@ def forgot():
 # ✅ Function to send OTP via SMTP (SendGrid)
 def send_otp(email, otp):
     subject = "Password Reset OTP"
-    body = f"Your OTP is: {otp}"
+    body = f"Your OTP for resetting your password is: {otp}"
 
     msg = MIMEText(body, "plain")
     msg["Subject"] = subject
