@@ -4,12 +4,12 @@ from email.mime.text import MIMEText
 from extensions import mysql, bcrypt
 import os
 
-# 🔸 Load Gmail SMTP credentials from environment (.env / Render)
-SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+# 🔸 Load Mailjet SMTP credentials from environment (.env / Render)
+SMTP_SERVER = os.getenv("SMTP_SERVER", "in-v3.mailjet.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
-EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")        # your Gmail address
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")      # your App Password (16 chars)
-SENDER_EMAIL = os.getenv("SENDER_EMAIL")          # usually same as EMAIL_ADDRESS
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")        # Mailjet API Key
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")      # Mailjet Secret Key
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")          # Your verified sender email
 
 # ✅ Blueprint Init
 forgot_bp = Blueprint('forgot_bp', __name__)
@@ -20,7 +20,7 @@ def forgot():
     return render_template('reset_password.html')  # Your frontend reset page
 
 
-# ✅ Function to send OTP via Gmail SMTP
+# ✅ Function to send OTP via Mailjet SMTP
 def send_otp(email, otp):
     subject = "Password Reset OTP"
     body = f"Your OTP for resetting your password is: {otp}"
@@ -31,10 +31,10 @@ def send_otp(email, otp):
     msg["To"] = email
 
     try:
-        print("🚀 Connecting to Gmail SMTP...")
+        print("🚀 Connecting to Mailjet SMTP...")
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10)
         server.starttls()
-        print("🔐 Logging in to Gmail SMTP...")
+        print("🔐 Logging in to Mailjet SMTP...")
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         print(f"✉️ Sending OTP to {email} ...")
         server.sendmail(SENDER_EMAIL, [email], msg.as_string())
@@ -44,7 +44,7 @@ def send_otp(email, otp):
 
     except Exception as e:
         # ❌ Don't crash Gunicorn worker — just log and return False
-        print(f"❌ Gmail SMTP error while sending OTP: {e}")
+        print(f"❌ Mailjet SMTP error while sending OTP: {e}")
         return False
 
 
